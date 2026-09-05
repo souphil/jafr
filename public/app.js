@@ -1,3 +1,48 @@
+// ---------- Constants from index.js ----------
+const ALPHABET = [
+  "ا", "ب", "ج", "د", "ه", "و", "ز", "ح", "ط", "ی",
+  "ک", "ل", "م", "ن", "س", "ع", "ف", "ص", "ق", "ر",
+  "ش", "ت", "ث", "خ", "ذ", "ض", "ظ", "غ",
+];
+
+const ABJAD_VALUES = {
+  "ا": 1, "ب": 2, "ج": 3, "د": 4, "ه": 5, "و": 6, "ز": 7, "ح": 8, "ط": 9, "ی": 10,
+  "ک": 20, "ل": 30, "م": 40, "ن": 50, "س": 60, "ع": 70, "ف": 80, "ص": 90, "ق": 100, "ر": 200,
+  "ش": 300, "ت": 400, "ث": 500, "خ": 600, "ذ": 700, "ض": 800, "ظ": 900, "غ": 1000,
+};
+
+const LETTER_SPELLING = {
+  "ا": "الف", "ب": "با", "ج": "جیم", "د": "دال", "ه": "ها", "و": "واو", "ز": "زا",
+  "ح": "حا", "ط": "طا", "ی": "یا", "ک": "کاف", "ل": "لام", "م": "میم", "ن": "نون",
+  "س": "سین", "ع": "عین", "ف": "فا", "ص": "صاد", "ق": "قاف", "ر": "را", "ش": "شین",
+  "ت": "تا", "ث": "ثا", "خ": "خا", "ذ": "ذال", "ض": "ضاد", "ظ": "ظا", "غ": "غین",
+};
+
+// Helper functions
+function computeAbjad(letters) {
+  let sum = 0;
+  for (const ch of letters) {
+    sum += ABJAD_VALUES[ch] || 0;
+  }
+  return sum;
+}
+
+function reduceAbjad(value) {
+  while (value > 9) {
+    value = String(value).split("").reduce((a, b) => a + parseInt(b), 0);
+  }
+  return value;
+}
+
+function computeBinat(letters) {
+  let result = "";
+  for (const ch of letters) {
+    const spelled = LETTER_SPELLING[ch] || ch;
+    result += spelled.slice(1); // Remove first letter
+  }
+  return result;
+}
+
 // ---------- Tabs ----------
 const tabs = document.querySelectorAll(".tab");
 const panels = document.querySelectorAll(".panel");
@@ -32,11 +77,33 @@ async function loadPage() {
 
   const table = document.getElementById("jafr-table");
   table.innerHTML = "";
-  data.rows.forEach((row) => {
+  data.rows.forEach((satrIndex, satrNum) => {
     const tr = document.createElement("tr");
-    row.forEach((cell) => {
+    satrIndex.forEach((cell, khaneNum) => {
       const td = document.createElement("td");
       td.textContent = cell;
+      const satr = satrNum + 1;
+      const khane = khaneNum + 1;
+      
+      // Calculate abjad values
+      const abjadBig = computeAbjad(cell);
+      const abjadSmall = reduceAbjad(abjadBig);
+      const binat = computeBinat(cell);
+      
+      // Create tooltip content with coordinates and values
+      const coords = `${jozv}،${safhe}،${satr}،${khane}
+ابجد کبیر: ${abjadBig}
+ابجد صغیر: ${abjadSmall}
+حروف: ${cell}
+بینات: ${binat}`;
+      
+      td.setAttribute("data-coords", coords);
+      td.setAttribute("data-jozv", jozv);
+      td.setAttribute("data-safhe", safhe);
+      td.setAttribute("data-satr", satr);
+      td.setAttribute("data-khane", khane);
+      td.setAttribute("data-abjad-big", abjadBig);
+      td.setAttribute("data-abjad-small", abjadSmall);
       tr.appendChild(td);
     });
     table.appendChild(tr);

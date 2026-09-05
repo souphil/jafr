@@ -1,8 +1,14 @@
 # Dependencies
 node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# Wrangler local state
+# Wrangler local state and build
 .wrangler/
+dist/
+build/
+*.wrangler.toml
 
 # Environment and secrets
 .env
@@ -14,6 +20,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 coverage/
 
 # Local archives
@@ -24,3 +31,19 @@ coverage/
 # OS/editor files
 .DS_Store
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+
+# IDE
+.vscode-test/
+
+# Dev container
+.devcontainer/cache/
+
+# Misc
+*.log
