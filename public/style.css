@@ -1,0 +1,375 @@
+:root {
+  --paper: #efe6d3;
+  --paper-alt: #e6d9bc;
+  --ink: #241c15;
+  --ink-soft: #4a3f30;
+  --rule: #b8a87c;
+  --seal: #6b2b1f;
+  --seal-soft: #8a4534;
+  --gold: #9c7a32;
+  --focus: #2f5d62;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Vazirmatn", "Tahoma", sans-serif;
+}
+
+body {
+  background-image:
+    radial-gradient(ellipse at top, rgba(255,255,255,0.25), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(160,140,90,0.04) 0px, rgba(160,140,90,0.04) 1px, transparent 1px, transparent 3px);
+}
+
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* ---------- Masthead ---------- */
+.masthead {
+  text-align: center;
+  border-bottom: 3px double var(--rule);
+  padding-bottom: 1.4rem;
+  margin-bottom: 1.8rem;
+}
+
+.masthead-ornament {
+  font-size: 1.4rem;
+  color: var(--seal);
+  margin-bottom: 0.3rem;
+}
+
+.masthead h1 {
+  font-family: "Aref Ruqaa", serif;
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--seal);
+  letter-spacing: 0.02em;
+}
+
+.subtitle {
+  margin: 0.4rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+/* ---------- Tabs ---------- */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1.6rem;
+  flex-wrap: wrap;
+}
+
+.tab {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+  padding: 0.55rem 1.3rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab:hover { border-color: var(--seal-soft); color: var(--seal-soft); }
+
+.tab.active {
+  background: var(--seal);
+  border-color: var(--seal);
+  color: var(--paper);
+}
+
+.tab:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ---------- Panels ---------- */
+.panel { display: none; }
+.panel.active { display: block; }
+
+.intro {
+  line-height: 1.9;
+  color: var(--ink-soft);
+  margin-bottom: 1rem;
+}
+
+.method-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.method-tab {
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--paper-alt);
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.method-tab.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--paper);
+}
+
+.note {
+  font-size: 0.88rem;
+  color: var(--seal-soft);
+  background: rgba(107,43,31,0.06);
+  border-right: 3px solid var(--seal-soft);
+  padding: 0.6rem 0.9rem;
+  border-radius: 4px;
+  line-height: 1.8;
+  margin-bottom: 1.2rem;
+}
+
+/* ---------- Controls ---------- */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.controls label, .house-lookup label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+select, input[type="number"], textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--paper-alt);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 0.5rem 0.7rem;
+  color: var(--ink);
+}
+
+input[type="number"] { width: 5.5rem; }
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  line-height: 1.8;
+  margin-bottom: 0.8rem;
+}
+
+.btn-primary, .btn-secondary {
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  padding: 0.55rem 1.4rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: filter 0.15s ease;
+}
+
+.btn-primary { background: var(--seal); color: var(--paper); }
+.btn-secondary { background: transparent; border-color: var(--gold); color: var(--gold); }
+.btn-primary:hover, .btn-secondary:hover { filter: brightness(1.1); }
+
+/* ---------- Book table ---------- */
+.locate-box {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.locate-box label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.locate-box input {
+  font-family: "Aref Ruqaa", serif;
+  font-size: 1.1rem;
+  text-align: center;
+  width: 8rem;
+}
+
+#jafr-table td.cell-highlight {
+  background: var(--seal);
+  color: var(--paper);
+  font-weight: 700;
+  outline: 2px solid var(--gold);
+}
+
+.page-meta {
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 0.6rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--paper-alt);
+}
+
+#jafr-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 900px;
+}
+
+#jafr-table td {
+  border: 1px solid var(--rule);
+  text-align: center;
+  padding: 0.35rem 0.2rem;
+  font-size: 0.82rem;
+  font-family: "Aref Ruqaa", serif;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+#jafr-table td:hover {
+  background: rgba(156,122,50,0.18);
+  cursor: default;
+}
+
+/* ---------- House lookup / results ---------- */
+.house-lookup {
+  margin-top: 2rem;
+  padding-top: 1.2rem;
+  border-top: 1px dashed var(--rule);
+}
+
+.house-lookup h3 {
+  font-size: 1rem;
+  color: var(--ink-soft);
+  margin-bottom: 0.6rem;
+}
+
+.house-result, .result-block {
+  margin-top: 1rem;
+}
+
+.house-big, .estekhraj-house {
+  font-family: "Aref Ruqaa", serif;
+  font-size: 2.4rem;
+  color: var(--seal);
+  letter-spacing: 0.3rem;
+  text-align: center;
+  padding: 1rem;
+  background: var(--paper-alt);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+}
+
+.address-line {
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* ---------- Abjad table ---------- */
+.abjad-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.8rem;
+}
+
+.abjad-table th, .abjad-table td {
+  border: 1px solid var(--rule);
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.abjad-table th {
+  background: var(--paper-alt);
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.total-line {
+  margin-top: 0.8rem;
+  font-weight: 600;
+  color: var(--gold);
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+/* ---------- Estekhraj steps ---------- */
+.steps {
+  margin-top: 1rem;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 2;
+}
+
+.steps dt { font-weight: 600; color: var(--ink); }
+.steps dd { margin: 0 0 0.5rem; font-family: "Aref Ruqaa", serif; font-size: 1.1rem; }
+
+.error-msg {
+  color: var(--seal);
+  font-weight: 600;
+}
+
+.words-found {
+  margin-top: 0.8rem;
+  text-align: center;
+}
+
+.words-found .word-chip {
+  display: inline-block;
+  font-family: "Aref Ruqaa", serif;
+  font-size: 1.1rem;
+  background: var(--paper-alt);
+  border: 1px solid var(--gold);
+  color: var(--ink);
+  padding: 0.25rem 0.8rem;
+  border-radius: 999px;
+  margin: 0.2rem;
+}
+
+/* ---------- Footer ---------- */
+.colophon {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 3px double var(--rule);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+  .masthead h1 { font-size: 2.2rem; }
+  .house-big, .estekhraj-house { font-size: 1.7rem; letter-spacing: 0.15rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

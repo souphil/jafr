@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جفر جامع</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="masthead-ornament" aria-hidden="true">۞</div>
+    <h1>جفر جامع</h1>
+    <p class="subtitle">۲۸ جزء · ۲۸ صفحه · ۲۸ سطر · ۲۸ خانه — بر مدار دایره‌ی ابجد</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="book" role="tab" aria-selected="true">مرور کتاب</button>
+    <button class="tab" data-tab="abjad" role="tab" aria-selected="false">حساب ابجد</button>
+    <button class="tab" data-tab="estekhraj" role="tab" aria-selected="false">استخراج مستحصله</button>
+  </nav>
+
+  <!-- ===================== تب مرور کتاب ===================== -->
+  <section class="panel active" id="panel-book">
+    <p class="intro">
+      کتاب جفر جامع ۲۸ جزء دارد؛ هر جزء ۲۸ صفحه، هر صفحه ۲۸ سطر و هر سطر ۲۸ خانه.
+      هر خانه از چهار حرف تشکیل شده که مستقیماً از اندیس جزء، صفحه، سطر و خانه در دایره‌ی
+      ابجدِ ۲۸ حرفی به‌دست می‌آید — به همین دلیل کل کتاب را می‌شود بدون نوشتن حتی یک خانه،
+      محاسبه کرد.
+    </p>
+
+    <div class="controls">
+      <label>جزء
+        <select id="sel-jozv"></select>
+      </label>
+      <label>صفحه
+        <select id="sel-safhe"></select>
+      </label>
+      <button id="btn-load-page" class="btn-primary">نمایش صفحه</button>
+    </div>
+
+    <div class="page-meta" id="page-meta"></div>
+
+    <div class="locate-box">
+      <label>جست‌وجو با ۴ حرف (مثلاً: غبسض)
+        <input type="text" id="locate-input" maxlength="8" placeholder="غبسض">
+      </label>
+      <button id="btn-locate" class="btn-secondary">برو به خانه</button>
+      <span id="locate-error" class="error-msg"></span>
+    </div>
+
+    <div class="table-wrap">
+      <table id="jafr-table" aria-label="جدول صفحه‌ی جفر جامع"></table>
+    </div>
+
+    <div class="house-lookup">
+      <h3>جست‌وجوی یک خانه‌ی مشخص</h3>
+      <div class="controls">
+        <label>جزء <input type="number" id="hl-jozv" min="1" max="28" value="1"></label>
+        <label>صفحه <input type="number" id="hl-safhe" min="1" max="28" value="1"></label>
+        <label>سطر <input type="number" id="hl-satr" min="1" max="28" value="1"></label>
+        <label>خانه <input type="number" id="hl-khane" min="1" max="28" value="1"></label>
+        <button id="btn-house-lookup" class="btn-secondary">نمایش خانه</button>
+      </div>
+      <div id="house-result" class="house-result"></div>
+    </div>
+  </section>
+
+  <!-- ===================== تب حساب ابجد ===================== -->
+  <section class="panel" id="panel-abjad">
+    <p class="intro">نام، عبارت یا هر متنی را وارد کنید تا ارزش ابجدیِ حرف‌به‌حرف، مجموع کل و رَدّ به آحاد آن محاسبه شود.</p>
+    <textarea id="abjad-input" rows="3" placeholder="مثلاً: محمد امین"></textarea>
+    <button id="btn-abjad" class="btn-primary">محاسبه</button>
+    <div id="abjad-result" class="result-block"></div>
+  </section>
+
+  <!-- ===================== تب استخراج ===================== -->
+  <section class="panel" id="panel-estekhraj">
+    <p class="intro">
+      یک سؤال یا اسم بنویسید تا با یکی از دو روشِ سنتی، به یک خانه از کتاب جفر جامع
+      یا یک عدد و کلمه‌ی معادل برسد.
+    </p>
+    <p class="note">
+      توجه: روش‌های دست‌نویسِ اصیل از استادی به استادی تفاوت دارند و تعیّنِ واحدی
+      ندارند؛ آنچه اینجا اجرا می‌شود پیاده‌سازیِ محاسباتیِ شفاف و قابل‌تکرارِ همان
+      اصول رایج است — برای مرور و کاوش، نه ادعای انطباق با یک نسخه‌ی خاص.
+    </p>
+
+    <div class="method-tabs">
+      <button class="method-tab active" data-method="1">روش ۱ — ملفوظی/ملبوبی/مسروری → خانه</button>
+      <button class="method-tab" data-method="2">روش ۲ — ملفوظی/بینات → عدد → کلمه‌ی معادل</button>
+    </div>
+
+    <textarea id="estekhraj-input" rows="3" placeholder="مثلاً: علی"></textarea>
+    <button id="btn-estekhraj" class="btn-primary">استخراج</button>
+    <div id="estekhraj-result" class="result-block"></div>
+  </section>
+
+  <footer class="colophon">
+    <span>ابزاری برای مطالعه و کاوش در علم جفر — صرفاً جنبه‌ی آموزشی و پژوهشی دارد.</span>
+  </footer>
+
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

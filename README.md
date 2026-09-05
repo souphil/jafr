@@ -1,81 +1,81 @@
-# r3po
+# جفر جامع — Cloudflare Worker
 
-A short description for the r3po project.
+اپ وب کتاب «جفر جامع» — کاملاً محاسباتی (بدون دیتابیس)، آماده‌ی دیپلوی روی Cloudflare Workers.
 
-This README is a starting point — edit the sections below to match the project's purpose, installation steps, usage examples, and contribution guidelines.
+## ساختار
 
-## Table of contents
+```
+jafr-app/
+├── wrangler.toml       ← تنظیمات Worker
+├── package.json
+├── src/index.js        ← منطق اصلی (تولید کتاب، حساب ابجد، استخراج) + API
+└── public/
+    ├── index.html       ← رابط کاربری
+    ├── style.css
+    └── app.js
+```
 
-- [About](#about)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Development](#development)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
+## منطق اصلی
 
-## About
+- کتاب = ۲۸ جزء × ۲۸ صفحه × ۲۸ سطر × ۲۸ خانه، هر خانه ۴ حرف.
+- خانه‌ی (جزء=j، صفحه=s، سطر=t، خانه=k) دقیقاً از حروفِ شماره‌ی j، s، t، k در دایره‌ی
+  ابجدِ ۲۸ حرفی («ابجد هوز حطی کلمن سعفص قرشت ثخذ ضظغ») ساخته می‌شود — یعنی کل کتاب
+  نیاز به ذخیره‌سازی ندارد و به‌صورت تابعی تولید می‌شود.
+- تب «استخراج مستحصله» یک پیاده‌سازیِ محاسباتیِ شفاف از روش سنتیِ
+  «ملفوظی/ملبوبی/مسروری» است (جزئیات در کامنت‌های `src/index.js`). چون این روشِ
+  دست‌نویس از استادی به استادی فرق دارد، این نسخه‌ی اول است — هر وقت متن دقیق‌تری
+  از فرمول در اختیار داشتی، همین تابع (`estekhraj`) قابل تنظیم دقیق‌تر است.
 
-r3po is a repository owned by souphil. Add a brief one- or two-sentence description of what this project does and who it's for.
+## اجرای محلی
 
-## Installation
+```bash
+npm install
+npm run dev -- --ip 0.0.0.0 --port 8787
+```
 
-Provide steps to install or set up the project locally. Examples:
+آدرس محلی معمولاً `http://localhost:8787` است.
 
-1. Clone the repo:
+## دیپلوی روی Cloudflare
 
-   git clone https://github.com/souphil/r3po.git
-2. Change into the project directory:
+1. اگر حساب Cloudflare نداری، در https://dash.cloudflare.com ثبت‌نام کن (رایگان کافی است).
+2. یک‌بار لاگین به wrangler:
+   ```bash
+   npx wrangler login
+   ```
+3. دیپلوی:
+   ```bash
+   npm run deploy
+   ```
+   بعد از دیپلوی، آدرسی شبیه `https://jafr-jame.<your-subdomain>.workers.dev` می‌گیری.
 
-   cd r3po
-3. Follow language/runtime-specific setup (e.g., install dependencies):
+## روش ۲ استخراج: «کلمه‌ی معادلِ عدد» (فرهنگ لغت)
 
-   - For Node.js: `npm install` or `pnpm install`
-   - For Python: `python -m venv venv && pip install -r requirements.txt`
+تب استخراج، روش دوم دارد: ملفوظی → بینات → مجموع ابجدِ کبیر → جست‌وجوی کلماتی که
+همین مجموع را دارند. برای این کار یک فهرست کوچکِ نمونه در
+`public/data/word-index.json` گذاشته شده (فقط چند کلمه، برای تست).
 
-Adjust these commands to match the project's language and tooling.
+برای فهرست کاملِ کلمات، این اسکریپت را **خودتان، روی سیستم خودتان** اجرا کنید
+(چون sandbox من به اینترنت دسترسی ندارد و نمی‌تواند فرهنگ لغت را دانلود کند):
 
-## Usage
+```bash
+node scripts/build-word-index.mjs
+```
 
-Show basic usage examples, commands, or screenshots. For example:
+این اسکریپت فرهنگ لغت فارسیِ آزاد Lilak (از طریق مخزن titoBouzout/Dictionaries،
+Apache 2.0) را دانلود می‌کند، برای هر کلمه مجموع ابجد کبیر را حسnode scripts/build-word-index.mjsاب می‌کند و
+`public/data/word-index.json` را می‌سازد. بعد از اجرا، دوباره دیپلوی کنید:
 
-- Run the app:
+```bash
+npm run deploy
+```
 
-  npm start
+اگر ترجیح می‌دهید از فرهنگ لغتِ عربی استفاده کنید، در ابتدای اسکریپت
+`SOURCE_URL` را به نسخه‌ی `Arabic.dic` همان مخزن تغییر دهید (کامنت‌شده در فایل).
 
-- Run tests:
+## نکات برای توسعه‌ی بعدی (ابزار الواح روحانی)
 
-  npm test
-
-Replace with actual commands for this project.
-
-## Development
-
-Explain how to run the development environment, formatters, linters, and tests. Example:
-
-- Install dev dependencies
-- Run the dev server (`npm run dev`)
-- Run the test suite (`npm test`)
-
-## Contributing
-
-Contributions are welcome. Please open an issue to discuss major changes, and submit pull requests with clear descriptions and tests where applicable.
-
-Consider adding a CONTRIBUTING.md for detailed guidelines.
-
-## License
-
-Specify the project's license (e.g., MIT). If you want me to add a license file, tell me which one and I can create it.
-
-## Acknowledgements
-
-Credit any libraries, people, or resources used by the project.
-
----
-
-This README was added by GitHub Copilot. Update the sections above with project-specific details; if you want, I can:
-
-- Add a license file (MIT/Apache/GPL)
-- Insert language composition badges or stats
-- Add CI status/badges and example workflows
-- Populate install/usage for a specific language or framework (tell me which)
+- توابع خالص `getHouse`، `getPage`، `computeAbjad`، `normalizeText` از `src/index.js`
+  export شده‌اند و می‌توانند مستقیماً در ابزار بعدی (استخراج/تکسیر از متن قرآن) هم
+  استفاده شوند.
+- برای متن قرآن (که حجمش زیاد است) بهتر است از **Cloudflare KV** یا **D1** استفاده
+  شود، نه embed کردن در کد Worker.
