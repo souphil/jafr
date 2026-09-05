@@ -31,6 +31,8 @@ jafr-app/
 ```bash
 npm install
 npm run dev -- --ip 0.0.0.0 --port 8787
+
+npx wrangler dev --ip 0.0.0.0 --port 8787
 ```
 
 آدرس محلی معمولاً `http://localhost:8787` است.
