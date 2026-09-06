@@ -411,7 +411,7 @@ textarea {
 
 .words-found .word-chip {
   display: inline-block;
-  font-family: "Aref Ruqaa", serif;
+  font-family: "Vazirmatn", sans-serif;
   font-size: 1.1rem;
   background: var(--paper-alt);
   border: 1px solid var(--gold);

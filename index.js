@@ -1,3 +1,5 @@
+import WORD_INDEX from "./public/data/word-index.json" with { type: "json" };
+
 /**
  * جفر جامع — Cloudflare Worker
  * ---------------------------------------------------------------
@@ -283,16 +285,7 @@ export default {
       const malfuziSum = malfuzi.reduce((s, ch) => s + (ABJAD_VALUES[ch] || 0), 0);
       const total = malfuziSum - wordSum;
 
-      let words = [];
-      try {
-        const idxRes = await env.ASSETS.fetch(new URL("/data/word-index.json", request.url));
-        if (idxRes.ok) {
-          const idx = await idxRes.json();
-          words = idx[String(total)] || [];
-        }
-      } catch (e) {
-        // فهرست کلمات هنوز ساخته نشده — بدون کلمه‌ی معادل برمی‌گردانیم
-      }
+      const words = WORD_INDEX[String(total)] || [];
 
       return json({
         input: text,
@@ -307,14 +300,7 @@ export default {
     if (url.pathname === "/api/word-for-number") {
       const number = parseIntSafe(url.searchParams.get("number"), null);
       if (!number) return json({ error: "عدد نامعتبر است." }, 400);
-      let words = [];
-      try {
-        const idxRes = await env.ASSETS.fetch(new URL("/data/word-index.json", request.url));
-        if (idxRes.ok) {
-          const idx = await idxRes.json();
-          words = idx[String(number)] || [];
-        }
-      } catch (e) {}
+      const words = WORD_INDEX[String(number)] || [];
       return json({ number, words });
     }
 

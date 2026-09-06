@@ -7,10 +7,16 @@
   },
   "env": {
     "dev": {
-      "name": "jafr-jamea-dev"
+      "name": "jafr-jamea-dev",
+      "assets": {
+        "directory": "./public"
+      }
     },
     "production": {
-      "name": "jafr-jamea"
+      "name": "jafr-jamea",
+      "assets": {
+        "directory": "./public"
+      }
     }
   }
 }

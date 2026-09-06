@@ -64,7 +64,7 @@ const NAMES = [
   "آیدا", "رها", "بهناز", "مهرناز", "فروزان", "کیانا",
 ];
 
-const MAX_WORDS_PER_NUMBER = 25; // برای کوچک ماندن حجم فایل خروجی
+const DEFAULT_MAX_WORDS_PER_NUMBER = 25;
 
 
 // همان جدول ابجد کبیر استفاده‌شده در src/index.js
@@ -101,6 +101,20 @@ function abjadSum(word) {
   return sum;
 }
 
+function getMaxWordsPerNumber() {
+  const limitArg = process.argv.find((arg) => arg.startsWith("--max-words-per-number="));
+  if (process.argv.includes("--all") || process.env.WORD_INDEX_ALL === "1") {
+    return Number.MAX_SAFE_INTEGER;
+  }
+  const rawLimit = limitArg ? limitArg.split("=", 2)[1] : process.env.WORD_INDEX_LIMIT;
+  if (!rawLimit) return DEFAULT_MAX_WORDS_PER_NUMBER;
+  const limit = Number.parseInt(rawLimit, 10);
+  if (!Number.isInteger(limit) || limit < 1) {
+    throw new Error("حد کلمات باید یک عدد صحیح بزرگ‌تر از صفر باشد.");
+  }
+  return limit;
+}
+
 function readPersianWords() {
   const python = process.env.PYTHON || (process.platform === "win32" ? "py" : "python3");
   const exporter = fileURLToPath(new URL("./export-persian-words.py", import.meta.url));
@@ -121,6 +135,10 @@ async function main() {
   const index = {};
   const seen = new Set();
   const stats = [];
+  const maxWordsPerNumber = getMaxWordsPerNumber();
+  console.log(
+    `حداکثر کلمه برای هر عدد: ${maxWordsPerNumber === Number.MAX_SAFE_INTEGER ? "بدون محدودیت" : maxWordsPerNumber}`
+  );
 
   function addWord(word) {
     if (!word || word.length < 2 || seen.has(word)) return false;
@@ -128,7 +146,7 @@ async function main() {
     const sum = abjadSum(word);
     if (!sum) return false;
     if (!index[sum]) index[sum] = [];
-    if (index[sum].length < MAX_WORDS_PER_NUMBER) index[sum].push(word);
+    if (index[sum].length < maxWordsPerNumber) index[sum].push(word);
     return true;
   }
 
