@@ -28,6 +28,7 @@ import { fileURLToPath } from "node:url";
 const DICTIONARY_SOURCES = [
   {
     name: "عربی",
+    category: "arabic",
     url: "https://raw.githubusercontent.com/titoBouzout/Dictionaries/master/Arabic.dic",
   },
 ];
@@ -80,6 +81,12 @@ const NORMALIZE_MAP = {
   "ة": "ه", "ك": "ک", "ء": "ا",
 };
 
+// حروف فارسیِ خارج از الفبای ۲۸ حرفی؛ برای محاسبه‌ی ابجد به نزدیک‌ترین
+// حرفِ ابجد نگاشت می‌شوند، اما شکل اصلی کلمه برای نمایش حفظ می‌شود.
+const ABJAD_FALLBACK_MAP = {
+  "پ": "ب", "چ": "ج", "ژ": "ز", "گ": "ک",
+};
+
 function cleanWord(rawLine) {
   // فرمت Hunspell: «کلمه/فلگ‌ها» — فلگ‌ها را دور می‌ریزیم
   let word = rawLine.split("/")[0].trim();
@@ -89,7 +96,7 @@ function cleanWord(rawLine) {
   for (const raw of word) {
     if (raw === "\u200c") continue; // نیم‌فاصله را نادیده می‌گیریم
     const ch = NORMALIZE_MAP[raw] || raw;
-    if (!ABJAD_VALUES[ch]) return null; // هر نویسه‌ی غیرِ ۲۸ حرفِ ابجد → این خط رد می‌شود
+    if (!ABJAD_VALUES[ch] && !ABJAD_FALLBACK_MAP[ch]) return null;
     out.push(ch);
   }
   return out.length ? out.join("") : null;
@@ -97,7 +104,10 @@ function cleanWord(rawLine) {
 
 function abjadSum(word) {
   let sum = 0;
-  for (const ch of word) sum += ABJAD_VALUES[ch] || 0;
+  for (const ch of word) {
+    const abjadChar = ABJAD_FALLBACK_MAP[ch] || ch;
+    sum += ABJAD_VALUES[abjadChar] || 0;
+  }
   return sum;
 }
 
@@ -133,20 +143,26 @@ function readPersianWords() {
 
 async function main() {
   const index = {};
-  const seen = new Set();
+  const seen = {
+    persian: new Set(),
+    arabic: new Set(),
+    names: new Set(),
+  };
   const stats = [];
   const maxWordsPerNumber = getMaxWordsPerNumber();
   console.log(
     `حداکثر کلمه برای هر عدد: ${maxWordsPerNumber === Number.MAX_SAFE_INTEGER ? "بدون محدودیت" : maxWordsPerNumber}`
   );
 
-  function addWord(word) {
-    if (!word || word.length < 2 || seen.has(word)) return false;
-    seen.add(word);
+  function addWord(word, category) {
+    if (!word || word.length < 2 || seen[category].has(word)) return false;
+    seen[category].add(word);
     const sum = abjadSum(word);
     if (!sum) return false;
-    if (!index[sum]) index[sum] = [];
-    if (index[sum].length < maxWordsPerNumber) index[sum].push(word);
+    if (!index[sum]) index[sum] = { persian: [], arabic: [], names: [] };
+    if (index[sum][category].length < maxWordsPerNumber) {
+      index[sum][category].push(word);
+    }
     return true;
   }
 
@@ -154,7 +170,7 @@ async function main() {
   let persianKept = 0;
   for (const line of readPersianWords()) {
     const word = cleanWord(line);
-    if (addWord(word)) persianKept++;
+    if (addWord(word, "persian")) persianKept++;
   }
   stats.push({ name: "فارسی (mnk-persian-words)", kept: persianKept });
   console.log(`  ${persianKept} کلمه از «فارسی (mnk-persian-words)» اضافه شد.`);
@@ -170,7 +186,7 @@ async function main() {
       const lines = text.split("\n").slice(1); // خط اول فایل Hunspell، شمار کلمات است
       for (const line of lines) {
         const word = cleanWord(line);
-        if (addWord(word)) kept++;
+        if (addWord(word, src.category)) kept++;
       }
     } catch (err) {
       console.warn(`  ⚠️ رد شد (${src.name}): ${err.message}`);
@@ -183,7 +199,7 @@ async function main() {
   let namesKept = 0;
   for (const raw of NAMES) {
     const word = cleanWord(raw);
-    if (addWord(word)) namesKept++;
+    if (addWord(word, "names")) namesKept++;
   }
   stats.push({ name: "نام‌های ایرانی/عربی (دستچین‌شده)", kept: namesKept });
   console.log(`  ${namesKept} نام اضافه شد.`);

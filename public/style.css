@@ -406,7 +406,17 @@ textarea {
 
 .words-found {
   margin-top: 0.8rem;
+}
+
+.word-group {
+  margin-top: 1rem;
   text-align: center;
+}
+
+.word-group h3 {
+  margin: 0 0 0.35rem;
+  color: var(--seal);
+  font-size: 1rem;
 }
 
 .words-found .word-chip {

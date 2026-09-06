@@ -247,9 +247,21 @@ document.getElementById("btn-estekhraj").addEventListener("click", async () => {
   const data = await res.json();
   if (data.error) { box.innerHTML = `<p class="error-msg">${data.error}</p>`; return; }
 
-  const wordsHtml = data.words.length
-    ? data.words.map((w) => `<span class="word-chip">${w}</span>`).join("")
-    : `<span class="error-msg">در فرهنگ لغتِ فعلی کلمه‌ای با این عدد پیدا نشد (فهرست را با اسکریپت scripts/build-word-index.mjs کامل کنید).</span>`;
+  const groups = data.groups || { persian: [], arabic: [], names: [] };
+  const groupLabels = [
+    ["persian", "فارسی"],
+    ["arabic", "عربی"],
+    ["names", "نام‌ها"],
+  ];
+  const wordsHtml = groupLabels
+    .filter(([key]) => groups[key]?.length)
+    .map(([key, label]) => `
+      <section class="word-group">
+        <h3>${label}</h3>
+        <div>${groups[key].map((w) => `<span class="word-chip">${w}</span>`).join("")}</div>
+      </section>
+    `).join("") ||
+    `<span class="error-msg">در فرهنگ لغتِ فعلی کلمه‌ای با این عدد پیدا نشد (فهرست را با اسکریپت scripts/build-word-index.mjs کامل کنید).</span>`;
 
   box.innerHTML = `
     <dl class="steps">

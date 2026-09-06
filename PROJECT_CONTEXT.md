@@ -75,7 +75,7 @@
 
 ## فرهنگ لغتِ «کلمه‌ی معادل»
 
-- فایل: `public/data/word-index.json` — نگاشتِ `{ "عدد": ["کلمه۱", "کلمه۲", ...] }`.
+- فایل: `public/data/word-index.json` — نگاشتِ `{ "عدد": { "persian": [], "arabic": [], "names": [] } }`.
 - ساخته می‌شود با `scripts/build-word-index.mjs` (باید **روی سیستمِ کاربر**
   اجرا شود، نه در sandbox، چون به دانلود از اینترنت نیاز دارد).
 - منبع فارسی در `scripts/build-word-index.mjs` بسته‌ی PyPI

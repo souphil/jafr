@@ -285,13 +285,15 @@ export default {
       const malfuziSum = malfuzi.reduce((s, ch) => s + (ABJAD_VALUES[ch] || 0), 0);
       const total = malfuziSum - wordSum;
 
-      const words = WORD_INDEX[String(total)] || [];
+      const groups = WORD_INDEX[String(total)] || { persian: [], arabic: [], names: [] };
+      const words = Object.values(groups).flat();
 
       return json({
         input: text,
         malfuzi: malfuzi.join(" "),
         binat: bin.join(" "),
         total,
+        groups,
         words,
       });
     }
@@ -300,8 +302,9 @@ export default {
     if (url.pathname === "/api/word-for-number") {
       const number = parseIntSafe(url.searchParams.get("number"), null);
       if (!number) return json({ error: "عدد نامعتبر است." }, 400);
-      const words = WORD_INDEX[String(number)] || [];
-      return json({ number, words });
+      const groups = WORD_INDEX[String(number)] || { persian: [], arabic: [], names: [] };
+      const words = Object.values(groups).flat();
+      return json({ number, groups, words });
     }
 
     // هر مسیر دیگری → فایل‌های استاتیک (رابط کاربری)
