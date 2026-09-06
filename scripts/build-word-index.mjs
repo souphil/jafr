@@ -10,8 +10,8 @@
  * دیپلوی کنید تا Worker به آن دسترسی داشته باشد.
  *
  * منابع فعلی:
- *  - فارسی: Lilak (Apache 2.0) از طریق titoBouzout/Dictionaries
- *  - عربی: همان مخزن titoBouzout/Dictionaries
+ *  - فارسی: بسته‌ی PyPI به نام mnk-persian-words
+ *  - عربی: مخزن titoBouzout/Dictionaries
  *  - نام‌های ایرانی/عربی: فهرستِ دستچین‌شده در همین فایل (NAMES) — کاملاً
  *    جامع نیست، ولی شاملِ نام‌های رایج ایرانی و عربی است. هر وقت خواستی
  *    می‌توانی به آرایه‌ی NAMES اضافه کنی.
@@ -21,14 +21,11 @@
  * (هر خط یک کلمه، با یا بدون فلگ‌های Hunspell بعد از «/») باشد.
  */
 
+import { execFileSync } from "node:child_process";
 import { writeFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const DICTIONARY_SOURCES = [
-  {
-    name: "فارسی (Lilak)",
-    url: "https://raw.githubusercontent.com/titoBouzout/Dictionaries/master/Persian.dic",
-  },
   {
     name: "عربی",
     url: "https://raw.githubusercontent.com/titoBouzout/Dictionaries/master/Arabic.dic",
@@ -104,6 +101,22 @@ function abjadSum(word) {
   return sum;
 }
 
+function readPersianWords() {
+  const python = process.env.PYTHON || (process.platform === "win32" ? "py" : "python3");
+  const exporter = fileURLToPath(new URL("./export-persian-words.py", import.meta.url));
+  try {
+    return execFileSync(python, [exporter], {
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    }).split("\n");
+  } catch (err) {
+    throw new Error(
+      "برای ساخت فهرست فارسی، Python و بسته‌ی mnk-persian-words را نصب کنید: " +
+      "python3 -m pip install -r requirements.txt"
+    );
+  }
+}
+
 async function main() {
   const index = {};
   const seen = new Set();
@@ -119,7 +132,16 @@ async function main() {
     return true;
   }
 
-  // ۱) دانلود و پردازش فرهنگ‌های لغت
+  // ۱) پردازش فرهنگ فارسی از بسته‌ی mnk-persian-words
+  let persianKept = 0;
+  for (const line of readPersianWords()) {
+    const word = cleanWord(line);
+    if (addWord(word)) persianKept++;
+  }
+  stats.push({ name: "فارسی (mnk-persian-words)", kept: persianKept });
+  console.log(`  ${persianKept} کلمه از «فارسی (mnk-persian-words)» اضافه شد.`);
+
+  // ۲) دانلود و پردازش فرهنگ عربی
   for (const src of DICTIONARY_SOURCES) {
     console.log(`در حال دانلود «${src.name}» از: ${src.url}`);
     let kept = 0;
@@ -139,7 +161,7 @@ async function main() {
     console.log(`  ${kept} کلمه از «${src.name}» اضافه شد.`);
   }
 
-  // ۲) نام‌های دستچین‌شده‌ی ایرانی/عربی
+  // ۳) نام‌های دستچین‌شده‌ی ایرانی/عربی
   let namesKept = 0;
   for (const raw of NAMES) {
     const word = cleanWord(raw);

@@ -1,9 +1,16 @@
 {
   "name": "jafr-jamea",
-  "type": "javascript",
   "main": "index.js",
   "compatibility_date": "2026-09-03",
   "assets": {
     "directory": "./public"
+  },
+  "env": {
+    "dev": {
+      "name": "jafr-jamea-dev"
+    },
+    "production": {
+      "name": "jafr-jamea"
+    }
   }
 }

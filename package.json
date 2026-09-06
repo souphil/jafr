@@ -1,0 +1,17 @@
+{
+  "name": "jafr-jamea",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --ip 0.0.0.0 --port 8787",
+    "build:word-index": "node scripts/build-word-index.mjs",
+    "deploy:dev": "wrangler deploy --env dev",
+    "deploy:prod": "wrangler deploy --env production",
+    "build:deploy:dev": "npm run build:word-index && npm run deploy:dev",
+    "build:deploy:prod": "npm run build:word-index && npm run deploy:prod",
+    "deploy": "npm run deploy:prod"
+  },
+  "devDependencies": {
+    "wrangler": "^4.35.0"
+  }
+}
