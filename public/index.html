@@ -20,9 +20,65 @@
 
   <nav class="tabs" role="tablist">
     <button class="tab active" data-tab="book" role="tab" aria-selected="true">مرور کتاب</button>
+    <button class="tab" data-tab="wheel" role="tab" aria-selected="false">گردونهٔ حروف</button>
     <button class="tab" data-tab="abjad" role="tab" aria-selected="false">حساب ابجد</button>
     <button class="tab" data-tab="estekhraj" role="tab" aria-selected="false">استخراج مستحصله</button>
   </nav>
+
+  <!-- ===================== تب گردونه‌ی حروف ===================== -->
+  <section class="panel" id="panel-wheel">
+    <p class="intro">
+      از گردونه یک خانه را انتخاب کنید یا با عنصر و جهت، چند خانه را هم‌زمان فیلتر کنید.
+      خروجیِ کنار گردونه واژه‌هایی را نشان می‌دهد که ارزش ابجدیِ حرف‌های انتخاب‌شده را دارند.
+    </p>
+
+    <div class="wheel-layout">
+      <div class="wheel-card">
+        <div class="wheel-heading">
+          <h2>گردونهٔ ۲۸ حرف</h2>
+          <span id="wheel-selection-count">یک خانه را انتخاب کنید</span>
+        </div>
+        <div class="wheel-stage">
+          <div class="direction-label direction-north">شمال</div>
+          <div class="direction-label direction-east">شرق</div>
+          <div class="direction-label direction-south">جنوب</div>
+          <div class="direction-label direction-west">غرب</div>
+          <svg id="letter-wheel" class="letter-wheel" viewBox="0 0 440 440" role="group" aria-label="گردونه‌ی انتخاب حروف"></svg>
+        </div>
+        <div class="wheel-legend" aria-label="عناصر چهارگانه">
+          <button class="legend-filter element-filter" data-element="آتش"><i class="element-dot fire"></i>آتش</button>
+          <button class="legend-filter element-filter" data-element="باد"><i class="element-dot air"></i>باد</button>
+          <button class="legend-filter element-filter" data-element="خاک"><i class="element-dot earth"></i>خاک</button>
+          <button class="legend-filter element-filter" data-element="آب"><i class="element-dot water"></i>آب</button>
+        </div>
+        <div class="wheel-directions" aria-label="جهت‌ها">
+          <span class="filter-label">جهت:</span>
+          <button class="legend-filter direction-filter" data-direction="شمال">شمال</button>
+          <button class="legend-filter direction-filter" data-direction="شمال‌شرقی">شمال‌شرقی</button>
+          <button class="legend-filter direction-filter" data-direction="شرق">شرق</button>
+          <button class="legend-filter direction-filter" data-direction="جنوب‌شرقی">جنوب‌شرقی</button>
+          <button class="legend-filter direction-filter" data-direction="جنوب">جنوب</button>
+          <button class="legend-filter direction-filter" data-direction="جنوب‌غربی">جنوب‌غربی</button>
+          <button class="legend-filter direction-filter" data-direction="غرب">غرب</button>
+        </div>
+        <div class="wheel-actions">
+          <button id="wheel-clear-filters" class="legend-filter clear">پاک‌کردن فیلترها</button>
+        </div>
+      </div>
+
+      <aside class="wheel-output" aria-live="polite">
+        <div class="output-kicker">خروجیِ فیلترشده</div>
+        <div id="wheel-selected" class="wheel-selected">هنوز خانه‌ای انتخاب نشده است</div>
+        <div id="wheel-filter-summary" class="wheel-filter-summary">عنصر یا جهت را برای فیلتر انتخاب کنید.</div>
+        <div id="wheel-sequence" class="wheel-sequence">ترتیبِ گردونه: —</div>
+        <label class="wheel-search-label" for="wheel-search">ورودی برای فیلتر خروجی</label>
+        <input id="wheel-search" class="wheel-search" type="search" placeholder="فقط حروفِ معتبرِ گردونه را وارد کنید" autocomplete="off">
+        <div id="wheel-words" class="wheel-words">
+          <p class="muted">با انتخاب یک خانه، واژه‌های هم‌ارزش اینجا نمایش داده می‌شوند.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
 
   <!-- ===================== تب مرور کتاب ===================== -->
   <section class="panel active" id="panel-book">
