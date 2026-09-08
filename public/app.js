@@ -277,13 +277,20 @@ document.getElementById("btn-estekhraj").addEventListener("click", async () => {
 const ELEMENTS = [
   { name: "آتش", className: "fire" },
   { name: "باد", className: "air" },
-  { name: "خاک", className: "earth" },
   { name: "آب", className: "water" },
+  { name: "خاک", className: "earth" },
 ];
 const DIRECTIONS = ["شمال", "شمال‌شرقی", "شرق", "جنوب‌شرقی", "جنوب", "جنوب‌غربی", "غرب"];
+const ABITH_GROUPS = [
+  { name: "آتش", direction: "شرق", className: "fire", letters: ["ا", "ج", "ذ", "ش", "ض", "ع", "ک"] },
+  { name: "باد", direction: "غرب", className: "air", letters: ["ب", "ح", "ر", "ص", "ط", "غ", "ل"] },
+  { name: "آب", direction: "شمال", className: "water", letters: ["ت", "خ", "ز", "ض", "ظ", "ف", "م"] },
+  { name: "خاک", direction: "جنوب", className: "earth", letters: ["ث", "د", "س", "ط", "ق", "ن", "و", "ه", "ی"] },
+];
+const modeButtons = document.querySelectorAll(".mode-button");
+let currentWheelMode = "abjad";
 const wheel = document.getElementById("letter-wheel");
 const wheelSelected = document.getElementById("wheel-selected");
-const wheelSummary = document.getElementById("wheel-filter-summary");
 const wheelSequence = document.getElementById("wheel-sequence");
 const wheelWords = document.getElementById("wheel-words");
 const wheelCount = document.getElementById("wheel-selection-count");
@@ -291,13 +298,13 @@ const wheelSearch = document.getElementById("wheel-search");
 let selectedWheelLetters = new Set();
 const activeElements = new Set();
 const activeDirections = new Set();
+let mouseIsDown = false;
 
-function normalizeWheelInput(rawText) {
+function normalizeWheelInputSafe(rawText) {
   const unique = [];
   const seen = new Set();
   for (const ch of (rawText || "")) {
-    if (!ALPHABET.includes(ch)) continue;
-    if (seen.has(ch)) continue;
+    if (!ALPHABET.includes(ch) || seen.has(ch)) continue;
     seen.add(ch);
     unique.push(ch);
   }
@@ -305,12 +312,7 @@ function normalizeWheelInput(rawText) {
 }
 
 function getWheelLetterSequence(letters) {
-  const valid = letters.filter((ch) => ALPHABET.includes(ch));
-  const unique = [...new Set(valid)];
-  return unique
-    .map((ch) => ALPHABET.indexOf(ch))
-    .sort((a, b) => a - b)
-    .map((index) => ALPHABET[index]);
+  return normalizeWheelInputSafe(Array.isArray(letters) ? letters.join("") : String(letters || ""));
 }
 
 function polarPoint(cx, cy, radius, angle) {
@@ -324,6 +326,32 @@ function sectorPath(innerRadius, outerRadius, startAngle, endAngle) {
   const [x3, y3] = polarPoint(220, 220, innerRadius, endAngle);
   const [x4, y4] = polarPoint(220, 220, innerRadius, startAngle);
   return `M ${x1} ${y1} A ${outerRadius} ${outerRadius} 0 0 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 0 0 ${x4} ${y4} Z`;
+}
+
+function getWheelMeta(index) {
+  if (currentWheelMode === "abith") {
+    const letter = ALPHABET[index];
+    const group = ABITH_GROUPS.find((item) => item.letters.includes(letter));
+    if (group) {
+      return {
+        element: group.name,
+        className: group.className,
+        direction: group.direction,
+        letter,
+      };
+    }
+    return { element: "آتش", className: "fire", direction: "شرق", letter };
+  }
+
+  const ring = Math.floor(index / 7);
+  const element = ELEMENTS[3 - ring];
+  const direction = DIRECTIONS[index % 7];
+  return {
+    element: element.name,
+    className: element.className,
+    direction,
+    letter: ALPHABET[index],
+  };
 }
 
 function createWheel() {
@@ -341,14 +369,22 @@ function createWheel() {
       const index = ring * 7 + sector;
       const startAngle = sector * (360 / 7) + 0.8;
       const endAngle = (sector + 1) * (360 / 7) - 0.8;
+      const meta = getWheelMeta(index);
       const path = document.createElementNS(ns, "path");
       path.setAttribute("d", sectorPath(35 + ring * 42, 75 + ring * 42, startAngle, endAngle));
-      path.setAttribute("class", `wheel-cell ${ELEMENTS[ring].className}`);
+      path.setAttribute("class", `wheel-cell ${meta.className}`);
       path.dataset.index = index;
       path.setAttribute("tabindex", "0");
       path.setAttribute("role", "button");
-      path.setAttribute("aria-label", `${ALPHABET[index]}، ${ELEMENTS[ring].name}، ${DIRECTIONS[sector]}`);
-      path.addEventListener("click", () => toggleWheelLetter(index));
+      path.setAttribute("aria-label", `${meta.letter}، ${meta.element}، ${meta.direction}`);
+      path.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        mouseIsDown = true;
+        toggleWheelLetter(index);
+      });
+      path.addEventListener("pointerenter", () => {
+        if (mouseIsDown) toggleWheelLetter(index);
+      });
       path.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
@@ -362,7 +398,7 @@ function createWheel() {
       label.setAttribute("x", labelPoint[0]);
       label.setAttribute("y", labelPoint[1] + 7);
       label.setAttribute("class", "wheel-letter");
-      label.textContent = ALPHABET[index];
+      label.textContent = meta.letter;
       wheel.appendChild(label);
     }
   }
@@ -381,59 +417,42 @@ function toggleWheelLetter(index) {
   updateWheelSelection();
 }
 
+window.addEventListener("pointerup", () => {
+  mouseIsDown = false;
+});
+window.addEventListener("pointerleave", () => {
+  mouseIsDown = false;
+});
+
 function updateWheelSelection() {
   wheel.querySelectorAll(".wheel-cell").forEach((cell) => {
     const index = Number(cell.dataset.index);
-    const element = ELEMENTS[Math.floor(index / 7)];
-    const direction = DIRECTIONS[index % 7];
-    const selected = selectedWheelLetters.has(Number(cell.dataset.index));
-    const matchesElement = !activeElements.size || activeElements.has(element.name);
-    const matchesDirection = !activeDirections.size || activeDirections.has(direction);
+    const meta = getWheelMeta(index);
+    const selected = selectedWheelLetters.has(index);
+    const matchesElement = !activeElements.size || activeElements.has(meta.element);
+    const matchesDirection = !activeDirections.size || activeDirections.has(meta.direction);
     const visible = matchesElement && matchesDirection;
     cell.classList.toggle("selected", selected);
     cell.classList.toggle("filtered-out", !visible);
   });
+
   const indexes = [...selectedWheelLetters];
-  wheelCount.textContent = indexes.length ? `${indexes.length} خانه انتخاب شده` : "یک خانه را انتخاب کنید";
-  const elementSummary = activeElements.size ? [...activeElements].join("، ") : "همه";
-  const directionSummary = activeDirections.size ? [...activeDirections].join("، ") : "همه";
-  wheelSummary.textContent = `عنصر: ${elementSummary} · جهت: ${directionSummary}`;
+  wheelCount.textContent = indexes.length ? `${indexes.length} خانه روشن` : "هیچ خانه‌ای روشن نیست";
 
-  const textOnlySelection = getWheelLetterSequence(normalizeWheelInput(wheelSearch.value.trim()));
-  const sourceIndexes = textOnlySelection.length ? textOnlySelection.map((ch) => ALPHABET.indexOf(ch)) : indexes;
+  const rawInput = wheelSearch.value.trim();
+  const inputLetters = rawInput ? getWheelLetterSequence(rawInput) : [];
+  const filteredSequence = inputLetters.filter((ch) => selectedWheelLetters.has(ALPHABET.indexOf(ch)));
 
-  if (!sourceIndexes.length) {
-    wheelSelected.textContent = "هنوز خانه‌ای انتخاب نشده است";
-    wheelSequence.textContent = "ترتیبِ گردونه: —";
-    wheelWords.innerHTML = `<p class="muted">با انتخاب خانه یا فعال‌کردن فیلترها، خروجی نمایش داده می‌شود.</p>`;
+  if (!filteredSequence.length) {
+    wheelSelected.textContent = "هنوز ورودیِ فیلترشده‌ای باقی نمانده است";
+    wheelSequence.textContent = "ترتیبِ فیلترشده: —";
+    wheelWords.hidden = true;
     return;
   }
 
-  const details = sourceIndexes.map((index) => {
-    const element = ELEMENTS[Math.floor(index / 7)];
-    return `${ALPHABET[index]} · ${element.name} · ${DIRECTIONS[index % 7]}`;
-  });
-  wheelSelected.textContent = details.join("  |  ");
-  wheelSequence.textContent = `ترتیبِ گردونه: ${textOnlySelection.length ? textOnlySelection.join(" ") : sourceIndexes.map((index) => ALPHABET[index]).join(" ")}`;
-  loadWheelWords(sourceIndexes, "");
-}
-
-async function loadWheelWords(indexes, searchText = "") {
-  wheelWords.innerHTML = `<p class="muted">در حال خواندن خروجی…</p>`;
-  const results = await Promise.all(indexes.map(async (index) => {
-    const value = ABJAD_VALUES[ALPHABET[index]];
-    const response = await fetch(`/api/word-for-number?number=${value}`);
-    return { letter: ALPHABET[index], value, data: await response.json() };
-  }));
-  wheelWords.innerHTML = results.map(({ letter, value, data }) => {
-    const words = (data.words || []).filter((word) => !searchText || word.includes(searchText));
-    return `
-    <section class="wheel-word-group">
-      <h3>${letter} <small>(${value})</small></h3>
-      <div>${words.slice(0, 18).map((word) => `<span class="word-chip">${word}</span>`).join("") || '<span class="muted">واژه‌ای با این ورودی پیدا نشد.</span>'}</div>
-    </section>
-  `;
-  }).join("");
+  wheelSelected.textContent = filteredSequence.join(" ");
+  wheelSequence.textContent = `ترتیبِ فیلترشده: ${filteredSequence.join(" ")}`;
+  wheelWords.hidden = true;
 }
 
 document.querySelectorAll(".element-filter").forEach((button) => {
@@ -460,10 +479,9 @@ document.querySelectorAll(".direction-filter").forEach((button) => {
 
 function matchingWheelIndexes() {
   return new Set(Array.from({ length: 28 }, (_, index) => index).filter((index) => {
-    const element = ELEMENTS[Math.floor(index / 7)].name;
-    const direction = DIRECTIONS[index % 7];
-    return (!activeElements.size || activeElements.has(element)) &&
-      (!activeDirections.size || activeDirections.has(direction));
+    const meta = getWheelMeta(index);
+    return (!activeElements.size || activeElements.has(meta.element)) &&
+      (!activeDirections.size || activeDirections.has(meta.direction));
   }));
 }
 
@@ -476,21 +494,20 @@ document.getElementById("wheel-clear-filters").addEventListener("click", () => {
 });
 
 wheelSearch.addEventListener("input", () => {
-  const text = wheelSearch.value.trim();
-  const normalized = normalizeWheelInput(text);
-  const orderedLetters = getWheelLetterSequence(normalized);
+  updateWheelSelection();
+});
 
-  if (orderedLetters.length) {
-    selectedWheelLetters = new Set(orderedLetters.map((ch) => ALPHABET.indexOf(ch)));
+modeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    currentWheelMode = button.dataset.mode;
+    modeButtons.forEach((btn) => btn.classList.toggle("active", btn === button));
+    activeElements.clear();
+    activeDirections.clear();
+    selectedWheelLetters.clear();
+    document.querySelectorAll(".element-filter, .direction-filter").forEach((el) => el.classList.remove("active"));
+    createWheel();
     updateWheelSelection();
-    return;
-  }
-
-  if (selectedWheelLetters.size) {
-    loadWheelWords([...selectedWheelLetters], "");
-  }
-  wheelSelected.textContent = "هنوز خانه‌ای انتخاب نشده است";
-  wheelSequence.textContent = "ترتیبِ گردونه: —";
+  });
 });
 
 createWheel();
