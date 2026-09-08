@@ -153,6 +153,14 @@ body {
 .wheel-heading span, .wheel-filter-summary, .muted { color: var(--ink-soft); font-size: 0.82rem; }
 .wheel-stage { position: relative; max-width: 500px; margin: 0 auto; padding: 1.1rem; }
 .letter-wheel { display: block; width: 100%; height: auto; overflow: visible; }
+.view-switch { display: flex; justify-content: center; gap: 0.35rem; margin-bottom: 0.7rem; }
+.view-button { border: 1px solid var(--rule); background: rgba(255,255,255,0.2); color: var(--ink-soft); font-family: inherit; padding: 0.35rem 0.8rem; border-radius: 5px; cursor: pointer; }
+.view-button.active { background: var(--gold); border-color: var(--gold); color: var(--paper); }
+.number-selection { display: grid; grid-template-columns: repeat(7, minmax(2.3rem, 1fr)); gap: 0.45rem; padding: 1.1rem 0.4rem; direction: rtl; }
+.number-cell { min-height: 2.7rem; border: 1px solid var(--rule); border-radius: 5px; background: rgba(255,255,255,0.28); color: var(--ink); font-family: inherit; font-size: 1rem; cursor: pointer; transition: opacity 0.16s ease, background 0.16s ease, box-shadow 0.16s ease; }
+.number-cell:hover, .number-cell:focus-visible { background: rgba(156,122,50,0.2); }
+.number-cell.selected { background: var(--seal); border-color: var(--seal); color: var(--paper); box-shadow: 0 0 0 2px var(--gold); }
+.number-cell.filtered-out { opacity: 0.2; }
 .wheel-background { fill: rgba(239,230,211,0.9); stroke: var(--rule); stroke-width: 2; }
 .wheel-cell { cursor: pointer; stroke: var(--paper); stroke-width: 2; transition: opacity 0.16s ease, filter 0.16s ease; }
 .wheel-filter-summary { display: none; }

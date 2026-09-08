@@ -36,6 +36,10 @@
       <div class="wheel-card">
         <div class="wheel-heading">
           <h2>گردونهٔ ۲۸ حرف</h2>
+          <div class="mode-switch" aria-label="انتخاب الگوی گردونه">
+            <button class="mode-button active" data-mode="abjad" type="button">ابجد</button>
+            <button class="mode-button" data-mode="abith" type="button">ابتث</button>
+          </div>
           <span id="wheel-selection-count">یک خانه را انتخاب کنید</span>
         </div>
         <div class="wheel-stage">
@@ -43,7 +47,12 @@
           <div class="direction-label direction-east">شرق</div>
           <div class="direction-label direction-south">جنوب</div>
           <div class="direction-label direction-west">غرب</div>
+          <div class="view-switch" aria-label="نوع انتخاب">
+            <button class="view-button active" data-view="circle" type="button">دایره</button>
+            <button class="view-button" data-view="numbers" type="button">۲۸ عدد</button>
+          </div>
           <svg id="letter-wheel" class="letter-wheel" viewBox="0 0 440 440" role="group" aria-label="گردونه‌ی انتخاب حروف"></svg>
+          <div id="number-selection" class="number-selection" hidden aria-label="انتخاب عددهای ۱ تا ۲۸"></div>
         </div>
         <div class="wheel-legend" aria-label="عناصر چهارگانه">
           <button class="legend-filter element-filter" data-element="آتش"><i class="element-dot fire"></i>آتش</button>
@@ -68,14 +77,11 @@
 
       <aside class="wheel-output" aria-live="polite">
         <div class="output-kicker">خروجیِ فیلترشده</div>
-        <div id="wheel-selected" class="wheel-selected">هنوز خانه‌ای انتخاب نشده است</div>
-        <div id="wheel-filter-summary" class="wheel-filter-summary">عنصر یا جهت را برای فیلتر انتخاب کنید.</div>
-        <div id="wheel-sequence" class="wheel-sequence">ترتیبِ گردونه: —</div>
-        <label class="wheel-search-label" for="wheel-search">ورودی برای فیلتر خروجی</label>
-        <input id="wheel-search" class="wheel-search" type="search" placeholder="فقط حروفِ معتبرِ گردونه را وارد کنید" autocomplete="off">
-        <div id="wheel-words" class="wheel-words">
-          <p class="muted">با انتخاب یک خانه، واژه‌های هم‌ارزش اینجا نمایش داده می‌شوند.</p>
-        </div>
+        <div id="wheel-selected" class="wheel-selected">هنوز ورودیِ گردونه وارد نشده است</div>
+        <div id="wheel-sequence" class="wheel-sequence">ترتیبِ فیلترشده: —</div>
+        <label class="wheel-search-label" for="wheel-search">ورودی برای فیلتر</label>
+        <input id="wheel-search" class="wheel-search" type="search" placeholder="حروفِ معتبرِ گردونه را وارد کنید" autocomplete="off">
+        <div id="wheel-words" class="wheel-words" hidden></div>
       </aside>
     </div>
   </section>
@@ -116,10 +122,10 @@
     <div class="house-lookup">
       <h3>جست‌وجوی یک خانه‌ی مشخص</h3>
       <div class="controls">
-        <label>جزء <input type="number" id="hl-jozv" min="1" max="28" value="1"></label>
-        <label>صفحه <input type="number" id="hl-safhe" min="1" max="28" value="1"></label>
-        <label>سطر <input type="number" id="hl-satr" min="1" max="28" value="1"></label>
-        <label>خانه <input type="number" id="hl-khane" min="1" max="28" value="1"></label>
+        <label>جزء (اقلیم) <input type="number" id="hl-jozv" min="1" max="28" value="1"></label>
+        <label>صفحه (شهر) <input type="number" id="hl-safhe" min="1" max="28" value="1"></label>
+        <label>سطر (کوی/محله) <input type="number" id="hl-satr" min="1" max="28" value="1"></label>
+        <label>خانه (بیت) <input type="number" id="hl-khane" min="1" max="28" value="1"></label>
         <button id="btn-house-lookup" class="btn-secondary">نمایش خانه</button>
       </div>
       <div id="house-result" class="house-result"></div>

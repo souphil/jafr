@@ -43,6 +43,10 @@ function computeBinat(letters) {
   return result;
 }
 
+function uniqueLetters(text) {
+  return [...new Set(text)];
+}
+
 // ---------- Tabs ----------
 const tabs = document.querySelectorAll(".tab");
 const panels = document.querySelectorAll(".panel");
@@ -89,13 +93,17 @@ async function loadPage() {
       const abjadBig = computeAbjad(cell);
       const abjadSmall = reduceAbjad(abjadBig);
       const binat = computeBinat(cell);
+      const uniqueBinat = uniqueLetters(binat).join("");
+      const uniqueBinatAbjad = computeAbjad(uniqueBinat);
       
       // Create tooltip content with coordinates and values
-      const coords = `${jozv}،${safhe}،${satr}،${khane}
-ابجد کبیر: ${abjadBig}
-ابجد صغیر: ${abjadSmall}
-حروف: ${cell}
-بینات: ${binat}`;
+      const coords = `جزء (اقلیم): ${jozv}
+    صفحه (شهر): ${safhe}
+    سطر (کوی/محله): ${satr}
+    خانه (بیت): ${khane}
+    حروف: ${cell} — ابجد کبیر: ${abjadBig}
+    بینات: ${binat} — ابجد کبیر: ${computeAbjad(binat)}
+    بیناتِ بدون تکرار: ${uniqueBinat} — ابجد کبیر: ${uniqueBinatAbjad}`;
       
       td.setAttribute("data-coords", coords);
       td.setAttribute("data-jozv", jozv);
@@ -295,10 +303,13 @@ const wheelSequence = document.getElementById("wheel-sequence");
 const wheelWords = document.getElementById("wheel-words");
 const wheelCount = document.getElementById("wheel-selection-count");
 const wheelSearch = document.getElementById("wheel-search");
+const numberSelection = document.getElementById("number-selection");
+const viewButtons = document.querySelectorAll(".view-button");
 let selectedWheelLetters = new Set();
 const activeElements = new Set();
 const activeDirections = new Set();
 let mouseIsDown = false;
+let currentWheelView = "circle";
 
 function normalizeWheelInputSafe(rawText) {
   const unique = [];
@@ -409,6 +420,42 @@ function createWheel() {
   center.setAttribute("class", "wheel-center");
   center.textContent = "ابجد";
   wheel.appendChild(center);
+  createNumberSelection();
+}
+
+function createNumberSelection() {
+  numberSelection.innerHTML = "";
+  for (let index = 0; index < 28; index++) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "number-cell";
+    button.dataset.index = index;
+    button.textContent = String(index + 1);
+    button.title = `${index + 1}: ${ALPHABET[index]}`;
+    button.setAttribute("aria-label", `${index + 1}، ${ALPHABET[index]}`);
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      mouseIsDown = true;
+      toggleWheelLetter(index);
+    });
+    button.addEventListener("pointerenter", () => {
+      if (mouseIsDown) toggleWheelLetter(index);
+    });
+    numberSelection.appendChild(button);
+  }
+  updateNumberSelection();
+}
+
+function updateNumberSelection() {
+  numberSelection.querySelectorAll(".number-cell").forEach((button) => {
+    const index = Number(button.dataset.index);
+    const meta = getWheelMeta(index);
+    const visible = (!activeElements.size || activeElements.has(meta.element)) &&
+      (!activeDirections.size || activeDirections.has(meta.direction));
+    const selected = selectedWheelLetters.has(index);
+    button.classList.toggle("selected", selected);
+    button.classList.toggle("filtered-out", !visible && !selected);
+  });
 }
 
 function toggleWheelLetter(index) {
@@ -433,8 +480,9 @@ function updateWheelSelection() {
     const matchesDirection = !activeDirections.size || activeDirections.has(meta.direction);
     const visible = matchesElement && matchesDirection;
     cell.classList.toggle("selected", selected);
-    cell.classList.toggle("filtered-out", !visible);
+    cell.classList.toggle("filtered-out", !visible && !selected);
   });
+  updateNumberSelection();
 
   const indexes = [...selectedWheelLetters];
   wheelCount.textContent = indexes.length ? `${indexes.length} خانه روشن` : "هیچ خانه‌ای روشن نیست";
@@ -507,6 +555,15 @@ modeButtons.forEach((button) => {
     document.querySelectorAll(".element-filter, .direction-filter").forEach((el) => el.classList.remove("active"));
     createWheel();
     updateWheelSelection();
+  });
+});
+
+viewButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    currentWheelView = button.dataset.view;
+    viewButtons.forEach((item) => item.classList.toggle("active", item === button));
+    wheel.hidden = currentWheelView !== "circle";
+    numberSelection.hidden = currentWheelView !== "numbers";
   });
 });
 
