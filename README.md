@@ -129,3 +129,5 @@ JSON تولیدشده را همراه با Worker روی Cloudflare منتشر �
 ├── scripts/                 # اسکریپت‌های ساخت داده
 └── package.json             # دستورات توسعه و استقرار
 ```
+
+deployed
