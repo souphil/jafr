@@ -333,10 +333,10 @@ document.getElementById("btn-abjad").addEventListener("click", async () => {
 });
 
 // ---------- Estekhraj: method switcher ----------
-function matchingWordsHtml(groups) {
+function matchingWordsHtml(groups, emptyMessage = "در فرهنگ لغتِ فعلی واژه‌ای با این عدد پیدا نشد.") {
   const groupLabels = [
-    ["persian", "فارسی"],
     ["arabic", "عربی"],
+    ["persian", "فارسی"],
     ["names", "نام‌ها"],
   ];
   return groupLabels
@@ -347,7 +347,7 @@ function matchingWordsHtml(groups) {
         <div>${groups[key].map((word) => `<span class="word-chip">${word}</span>`).join("")}</div>
       </section>
     `).join("") ||
-    `<span class="error-msg">در فرهنگ لغتِ فعلی واژه‌ای با این عدد پیدا نشد.</span>`;
+    `<span class="error-msg">${emptyMessage}</span>`;
 }
 
 let estekhrajMethod = "1";
@@ -408,7 +408,7 @@ document.getElementById("btn-estekhraj").addEventListener("click", async () => {
       <dt>بینات (ملفوظی بدون حرف اول)</dt><dd>${data.binat || "—"}</dd>
     </dl>
     <div class="total-line">مجموع ابجدِ بینات: ${data.total}</div>
-    <div class="words-found">${matchingWordsHtml(groups)}</div>
+    <div class="words-found">${matchingWordsHtml(groups, "در فرهنگ لغتِ فعلی کلمه‌ای با این عدد پیدا نشد (فهرست را با اسکریپت scripts/build-word-index.mjs کامل کنید).")}</div>
   `;
 });
 
@@ -416,8 +416,12 @@ const bookEstekhrajInput = document.getElementById("book-estekhraj-input");
 const bookEstekhrajResult = document.getElementById("book-estekhraj-result");
 const bookEstekhrajWords = document.getElementById("book-estekhraj-words");
 const bookWordsButton = document.getElementById("btn-book-muqaren-words");
+const bookCalculateButton = document.getElementById("btn-book-estekhraj-two");
+let bookEstekhrajRequest = 0;
 
 bookEstekhrajInput.addEventListener("input", () => {
+  bookEstekhrajRequest++;
+  bookCalculateButton.disabled = false;
   bookEstekhrajResult.replaceChildren();
   bookEstekhrajWords.replaceChildren();
   bookEstekhrajWords.hidden = true;
@@ -426,7 +430,8 @@ bookEstekhrajInput.addEventListener("input", () => {
   bookWordsButton.textContent = "بازکردن کلمات مقارن";
 });
 
-document.getElementById("btn-book-estekhraj-two").addEventListener("click", async () => {
+bookCalculateButton.addEventListener("click", async () => {
+  const requestId = ++bookEstekhrajRequest;
   const text = bookEstekhrajInput.value.trim();
   bookEstekhrajResult.replaceChildren();
   bookEstekhrajWords.replaceChildren();
@@ -439,8 +444,7 @@ document.getElementById("btn-book-estekhraj-two").addEventListener("click", asyn
     return;
   }
 
-  const calculateButton = document.getElementById("btn-book-estekhraj-two");
-  calculateButton.disabled = true;
+  bookCalculateButton.disabled = true;
   try {
     const response = await fetch("/api/estekhraj2", {
       method: "POST",
@@ -448,6 +452,7 @@ document.getElementById("btn-book-estekhraj-two").addEventListener("click", asyn
       body: JSON.stringify({ text }),
     });
     const data = await response.json();
+    if (requestId !== bookEstekhrajRequest) return;
     if (!response.ok || data.error) {
       bookEstekhrajResult.innerHTML = `<p class="error-msg">${data.error || "محاسبه انجام نشد."}</p>`;
       return;
@@ -464,9 +469,11 @@ document.getElementById("btn-book-estekhraj-two").addEventListener("click", asyn
     bookEstekhrajWords.innerHTML = matchingWordsHtml(groups);
     bookWordsButton.disabled = false;
   } catch {
-    bookEstekhrajResult.innerHTML = `<p class="error-msg">ارتباط با سرویس محاسبه برقرار نشد.</p>`;
+    if (requestId === bookEstekhrajRequest) {
+      bookEstekhrajResult.innerHTML = `<p class="error-msg">ارتباط با سرویس محاسبه برقرار نشد.</p>`;
+    }
   } finally {
-    calculateButton.disabled = false;
+    if (requestId === bookEstekhrajRequest) bookCalculateButton.disabled = false;
   }
 });
 
