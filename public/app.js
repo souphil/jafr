@@ -140,11 +140,12 @@ async function loadPage() {
   scheduleBookSelection();
 }
 
+let pointerPosition = null;
 function updateBookSelection() {
   const table = document.getElementById("jafr-table");
   const bounds = bookViewport.getBoundingClientRect();
-  const centerX = bounds.left + bounds.width / 2;
-  const centerY = bounds.top + bounds.height / 2;
+  const centerX = pointerPosition?.x ?? bounds.left + bounds.width / 2;
+  const centerY = pointerPosition?.y ?? bounds.top + bounds.height / 2;
   let closestCell = null;
   let closestDistance = Infinity;
 
@@ -222,15 +223,24 @@ function openHouse(cell) {
 
 bookViewport.addEventListener("scroll", scheduleBookSelection, { passive: true });
 window.addEventListener("resize", scheduleBookSelection);
+bookViewport.addEventListener("pointermove", (event) => {
+  if (event.pointerType !== "mouse") return;
+  pointerPosition = { x: event.clientX, y: event.clientY };
+  scheduleBookSelection();
+});
+bookViewport.addEventListener("pointerleave", () => {
+  pointerPosition = null;
+  scheduleBookSelection();
+});
 document.getElementById("jafr-table").addEventListener("click", (event) => {
   const cell = event.target.closest("td[data-khane]");
   if (!cell) return;
-  cell.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
   openHouse(cell);
 });
 document.getElementById("jafr-table").addEventListener("keydown", (event) => {
   if ((event.key === "Enter" || event.key === " ") && event.target.matches("td[data-khane]")) {
     event.preventDefault();
+    pointerPosition = null;
     event.target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     openHouse(event.target);
   }
