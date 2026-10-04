@@ -64,6 +64,10 @@ tabs.forEach((tab) => {
 // ---------- Populate جزء / صفحه selects ----------
 const selJozv = document.getElementById("sel-jozv");
 const selSafhe = document.getElementById("sel-safhe");
+const bookViewport = document.getElementById("book-viewport");
+const bookPosition = document.getElementById("book-position");
+const houseDetail = document.getElementById("house-detail");
+let expandedHouse = null;
 for (let i = 1; i <= 28; i++) {
   selJozv.appendChild(new Option("جزء " + i, i));
   selSafhe.appendChild(new Option("صفحه " + i, i));
@@ -83,11 +87,22 @@ async function loadPage() {
   table.innerHTML = "";
   data.rows.forEach((satrIndex, satrNum) => {
     const tr = document.createElement("tr");
+    tr.dataset.satr = satrNum + 1;
     satrIndex.forEach((cell, khaneNum) => {
       const td = document.createElement("td");
-      td.textContent = cell;
       const satr = satrNum + 1;
       const khane = khaneNum + 1;
+      const houseNumber = document.createElement("span");
+      houseNumber.className = "house-number";
+      houseNumber.textContent = `بیت ${khane}`;
+      const houseLetters = document.createElement("span");
+      houseLetters.className = "house-letters";
+      houseLetters.textContent = cell;
+      td.append(houseNumber, houseLetters);
+      td.setAttribute("role", "button");
+      td.setAttribute("aria-label", `بیت ${khane}، ${cell}، کوی ${satr}، شهر ${safhe}`);
+      td.setAttribute("aria-expanded", "false");
+      td.tabIndex = -1;
       
       // Calculate abjad values
       const abjadBig = computeAbjad(cell);
@@ -112,11 +127,114 @@ async function loadPage() {
       td.setAttribute("data-khane", khane);
       td.setAttribute("data-abjad-big", abjadBig);
       td.setAttribute("data-abjad-small", abjadSmall);
+      td.setAttribute("data-binat", binat);
       tr.appendChild(td);
     });
     table.appendChild(tr);
   });
+
+  bookViewport.scrollTop = 0;
+  bookViewport.scrollLeft = 0;
+  houseDetail.hidden = true;
+  expandedHouse = null;
+  scheduleBookSelection();
 }
+
+function updateBookSelection() {
+  const table = document.getElementById("jafr-table");
+  const bounds = bookViewport.getBoundingClientRect();
+  const centerX = bounds.left + bounds.width / 2;
+  const centerY = bounds.top + bounds.height / 2;
+  let closestCell = null;
+  let closestDistance = Infinity;
+
+  table.querySelectorAll("td[data-khane]").forEach((cell) => {
+    const rect = cell.getBoundingClientRect();
+    const x = Math.max(rect.left, Math.min(centerX, rect.right));
+    const y = Math.max(rect.top, Math.min(centerY, rect.bottom));
+    const distance = (centerX - x) ** 2 + (centerY - y) ** 2;
+    if (distance < closestDistance) {
+      closestCell = cell;
+      closestDistance = distance;
+    }
+  });
+
+  if (!closestCell) return;
+  const previousCell = table.querySelector("td.scroll-target");
+  if (previousCell !== closestCell) {
+    previousCell?.classList.remove("scroll-target");
+    if (previousCell) previousCell.tabIndex = -1;
+    table.querySelector("tr.neighborhood-current")?.classList.remove("neighborhood-current");
+    closestCell.classList.add("scroll-target");
+    closestCell.tabIndex = 0;
+    closestCell.closest("tr").classList.add("neighborhood-current");
+  }
+
+  bookPosition.textContent =
+    `شهر ${closestCell.dataset.safhe} · کوی ${closestCell.dataset.satr} · بیت ${closestCell.dataset.khane}`;
+}
+
+let selectionFrame = 0;
+function scheduleBookSelection() {
+  if (selectionFrame) return;
+  selectionFrame = requestAnimationFrame(() => {
+    selectionFrame = 0;
+    updateBookSelection();
+  });
+}
+
+function openHouse(cell) {
+  if (expandedHouse === cell && !houseDetail.hidden) {
+    houseDetail.hidden = true;
+    cell.setAttribute("aria-expanded", "false");
+    expandedHouse = null;
+    return;
+  }
+
+  expandedHouse?.setAttribute("aria-expanded", "false");
+  expandedHouse = cell;
+  cell.setAttribute("aria-expanded", "true");
+  const heading = document.createElement("h3");
+  heading.textContent = `بیت ${cell.dataset.khane} · ${cell.querySelector(".house-letters").textContent}`;
+  const address = document.createElement("p");
+  address.textContent = `شهر ${cell.dataset.safhe} · کوی ${cell.dataset.satr}`;
+  const values = document.createElement("dl");
+  [["ابجد کبیر", cell.dataset.abjadBig], ["ابجد صغیر", cell.dataset.abjadSmall], ["بینات", cell.dataset.binat]]
+    .forEach(([label, value]) => {
+      const term = document.createElement("dt");
+      term.textContent = label;
+      const definition = document.createElement("dd");
+      definition.textContent = value;
+      values.append(term, definition);
+    });
+  const close = document.createElement("button");
+  close.className = "detail-close";
+  close.type = "button";
+  close.textContent = "بستن";
+  close.addEventListener("click", () => {
+    houseDetail.hidden = true;
+    cell.setAttribute("aria-expanded", "false");
+    expandedHouse = null;
+  });
+  houseDetail.replaceChildren(heading, address, values, close);
+  houseDetail.hidden = false;
+}
+
+bookViewport.addEventListener("scroll", scheduleBookSelection, { passive: true });
+window.addEventListener("resize", scheduleBookSelection);
+document.getElementById("jafr-table").addEventListener("click", (event) => {
+  const cell = event.target.closest("td[data-khane]");
+  if (!cell) return;
+  cell.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+  openHouse(cell);
+});
+document.getElementById("jafr-table").addEventListener("keydown", (event) => {
+  if ((event.key === "Enter" || event.key === " ") && event.target.matches("td[data-khane]")) {
+    event.preventDefault();
+    event.target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    openHouse(event.target);
+  }
+});
 
 document.getElementById("btn-load-page").addEventListener("click", loadPage);
 loadPage();

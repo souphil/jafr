@@ -115,9 +115,16 @@
       <span id="locate-error" class="error-msg"></span>
     </div>
 
-    <div class="table-wrap">
-      <table id="jafr-table" aria-label="جدول صفحه‌ی جفر جامع"></table>
+    <div class="scroll-cylinder">
+      <div class="scroll-roller" aria-hidden="true"></div>
+      <p class="book-position" id="book-position">شهر — · کوی — · بیت —</p>
+      <div class="table-wrap" id="book-viewport" tabindex="0" aria-label="مرور خانه‌ها در شهر و محله‌ها">
+        <table id="jafr-table" aria-label="جدول صفحه‌ی جفر جامع"></table>
+        <div class="scroll-indicator" aria-hidden="true"><span></span></div>
+      </div>
+      <div class="scroll-roller" aria-hidden="true"></div>
     </div>
+    <section class="house-detail" id="house-detail" hidden aria-live="polite"></section>
 
     <div class="house-lookup">
       <h3>جست‌وجوی یک خانه‌ی مشخص</h3>
