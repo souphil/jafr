@@ -417,35 +417,6 @@ textarea {
   outline-offset: -3px;
 }
 
-.scroll-indicator {
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  left: 50%;
-  width: 4.5rem;
-  height: 4.5rem;
-  border: 2px solid var(--seal);
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(239,230,211,0.65), 0 2px 8px rgba(36,28,21,0.28);
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-}
-
-.scroll-indicator::before,
-.scroll-indicator::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  background: var(--seal);
-  opacity: 0.7;
-  transform: translate(-50%, -50%);
-}
-
-.scroll-indicator::before { width: 7rem; height: 1px; }
-.scroll-indicator::after { width: 1px; height: 7rem; }
-.scroll-indicator span { position: absolute; inset: 50%; z-index: 1; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--gold); transform: translate(-50%, -50%); }
-
 .house-detail {
   position: relative;
   display: grid;
@@ -466,6 +437,22 @@ textarea {
 .house-detail dt { color: var(--ink-soft); font-size: 0.78rem; }
 .house-detail dd { margin: 0; color: var(--ink); font-weight: 600; }
 .detail-close { grid-column: 2; grid-row: 1; padding: 0.35rem 0.7rem; border: 1px solid var(--rule); background: transparent; color: var(--seal); font: inherit; cursor: pointer; }
+
+.book-estekhraj-two {
+  margin: 1.4rem 0 2rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.book-estekhraj-two h2 { margin: 0 0 0.8rem; color: var(--seal); font-size: 1.2rem; }
+.book-estekhraj-two label { display: block; margin-bottom: 0.35rem; color: var(--ink-soft); font-size: 0.85rem; }
+.book-estekhraj-two textarea { margin-bottom: 0.5rem; }
+.book-estekhraj-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.book-estekhraj-actions button:disabled { cursor: not-allowed; opacity: 0.55; }
+.book-estekhraj-result:empty { display: none; }
+.book-estekhraj-result .steps { overflow-wrap: anywhere; }
+.book-estekhraj-words[hidden] { display: none; }
 
 /* Tooltip/Popup on hover - positioned intelligently */
 #jafr-table td::after {

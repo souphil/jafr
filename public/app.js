@@ -323,6 +323,23 @@ document.getElementById("btn-abjad").addEventListener("click", async () => {
 });
 
 // ---------- Estekhraj: method switcher ----------
+function matchingWordsHtml(groups) {
+  const groupLabels = [
+    ["persian", "فارسی"],
+    ["arabic", "عربی"],
+    ["names", "نام‌ها"],
+  ];
+  return groupLabels
+    .filter(([key]) => groups[key]?.length)
+    .map(([key, label]) => `
+      <section class="word-group">
+        <h3>${label}</h3>
+        <div>${groups[key].map((word) => `<span class="word-chip">${word}</span>`).join("")}</div>
+      </section>
+    `).join("") ||
+    `<span class="error-msg">در فرهنگ لغتِ فعلی واژه‌ای با این عدد پیدا نشد.</span>`;
+}
+
 let estekhrajMethod = "1";
 const methodTabs = document.querySelectorAll(".method-tab");
 methodTabs.forEach((btn) => {
@@ -374,20 +391,6 @@ document.getElementById("btn-estekhraj").addEventListener("click", async () => {
   if (data.error) { box.innerHTML = `<p class="error-msg">${data.error}</p>`; return; }
 
   const groups = data.groups || { persian: [], arabic: [], names: [] };
-  const groupLabels = [
-    ["persian", "فارسی"],
-    ["arabic", "عربی"],
-    ["names", "نام‌ها"],
-  ];
-  const wordsHtml = groupLabels
-    .filter(([key]) => groups[key]?.length)
-    .map(([key, label]) => `
-      <section class="word-group">
-        <h3>${label}</h3>
-        <div>${groups[key].map((w) => `<span class="word-chip">${w}</span>`).join("")}</div>
-      </section>
-    `).join("") ||
-    `<span class="error-msg">در فرهنگ لغتِ فعلی کلمه‌ای با این عدد پیدا نشد (فهرست را با اسکریپت scripts/build-word-index.mjs کامل کنید).</span>`;
 
   box.innerHTML = `
     <dl class="steps">
@@ -395,8 +398,73 @@ document.getElementById("btn-estekhraj").addEventListener("click", async () => {
       <dt>بینات (ملفوظی بدون حرف اول)</dt><dd>${data.binat || "—"}</dd>
     </dl>
     <div class="total-line">مجموع ابجدِ بینات: ${data.total}</div>
-    <div class="words-found">${wordsHtml}</div>
+    <div class="words-found">${matchingWordsHtml(groups)}</div>
   `;
+});
+
+const bookEstekhrajInput = document.getElementById("book-estekhraj-input");
+const bookEstekhrajResult = document.getElementById("book-estekhraj-result");
+const bookEstekhrajWords = document.getElementById("book-estekhraj-words");
+const bookWordsButton = document.getElementById("btn-book-muqaren-words");
+
+bookEstekhrajInput.addEventListener("input", () => {
+  bookEstekhrajResult.replaceChildren();
+  bookEstekhrajWords.replaceChildren();
+  bookEstekhrajWords.hidden = true;
+  bookWordsButton.disabled = true;
+  bookWordsButton.setAttribute("aria-expanded", "false");
+  bookWordsButton.textContent = "بازکردن کلمات مقارن";
+});
+
+document.getElementById("btn-book-estekhraj-two").addEventListener("click", async () => {
+  const text = bookEstekhrajInput.value.trim();
+  bookEstekhrajResult.replaceChildren();
+  bookEstekhrajWords.replaceChildren();
+  bookEstekhrajWords.hidden = true;
+  bookWordsButton.disabled = true;
+  bookWordsButton.setAttribute("aria-expanded", "false");
+  bookWordsButton.textContent = "بازکردن کلمات مقارن";
+  if (!text) {
+    bookEstekhrajResult.innerHTML = `<p class="error-msg">عبارت مبنا را وارد کنید.</p>`;
+    return;
+  }
+
+  const calculateButton = document.getElementById("btn-book-estekhraj-two");
+  calculateButton.disabled = true;
+  try {
+    const response = await fetch("/api/estekhraj2", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    const data = await response.json();
+    if (!response.ok || data.error) {
+      bookEstekhrajResult.innerHTML = `<p class="error-msg">${data.error || "محاسبه انجام نشد."}</p>`;
+      return;
+    }
+
+    const groups = data.groups || { persian: [], arabic: [], names: [] };
+    bookEstekhrajResult.innerHTML = `
+      <dl class="steps">
+        <dt>ملفوظی</dt><dd>${data.malfuzi || "—"}</dd>
+        <dt>بینات</dt><dd>${data.binat || "—"}</dd>
+      </dl>
+      <div class="total-line">عدد مستحصلهٔ روش ۲: ${data.total}</div>
+    `;
+    bookEstekhrajWords.innerHTML = matchingWordsHtml(groups);
+    bookWordsButton.disabled = false;
+  } catch {
+    bookEstekhrajResult.innerHTML = `<p class="error-msg">ارتباط با سرویس محاسبه برقرار نشد.</p>`;
+  } finally {
+    calculateButton.disabled = false;
+  }
+});
+
+bookWordsButton.addEventListener("click", () => {
+  const isOpening = bookEstekhrajWords.hidden;
+  bookEstekhrajWords.hidden = !isOpening;
+  bookWordsButton.setAttribute("aria-expanded", String(isOpening));
+  bookWordsButton.textContent = isOpening ? "بستن کلمات مقارن" : "بازکردن کلمات مقارن";
 });
 
 // ---------- Alphabet wheel / elemental filters ----------

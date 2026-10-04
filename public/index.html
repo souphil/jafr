@@ -120,11 +120,22 @@
       <p class="book-position" id="book-position">شهر — · کوی — · بیت —</p>
       <div class="table-wrap" id="book-viewport" tabindex="0" aria-label="مرور خانه‌ها در شهر و محله‌ها">
         <table id="jafr-table" aria-label="جدول صفحه‌ی جفر جامع"></table>
-        <div class="scroll-indicator" aria-hidden="true"><span></span></div>
       </div>
       <div class="scroll-roller" aria-hidden="true"></div>
     </div>
     <section class="house-detail" id="house-detail" hidden aria-live="polite"></section>
+
+    <section class="book-estekhraj-two" aria-labelledby="book-estekhraj-heading">
+      <h2 id="book-estekhraj-heading">مستحصله · روش ۲</h2>
+      <label for="book-estekhraj-input">عبارت مبنا</label>
+      <textarea id="book-estekhraj-input" rows="2">هر چیزی عروسی دارد و عروس قرآن سوره‌ی الرَّحْمَنِ است.</textarea>
+      <div class="book-estekhraj-actions">
+        <button id="btn-book-estekhraj-two" class="btn-primary" type="button">محاسبه مستحصله ۲</button>
+        <button id="btn-book-muqaren-words" class="btn-secondary" type="button" aria-expanded="false" disabled>بازکردن کلمات مقارن</button>
+      </div>
+      <div id="book-estekhraj-result" class="book-estekhraj-result" aria-live="polite"></div>
+      <div id="book-estekhraj-words" class="words-found" hidden></div>
+    </section>
 
     <div class="house-lookup">
       <h3>جست‌وجوی یک خانه‌ی مشخص</h3>
