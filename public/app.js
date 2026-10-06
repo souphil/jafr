@@ -502,6 +502,7 @@ const modeButtons = document.querySelectorAll(".mode-button");
 let currentWheelMode = "abjad";
 const wheel = document.getElementById("letter-wheel");
 const wheelSelected = document.getElementById("wheel-selected");
+const wheelRepeatedSequence = document.getElementById("wheel-repeated-sequence");
 const wheelSequence = document.getElementById("wheel-sequence");
 const wheelWords = document.getElementById("wheel-words");
 const wheelCount = document.getElementById("wheel-selection-count");
@@ -691,8 +692,16 @@ function updateWheelSelection() {
   wheelCount.textContent = indexes.length ? `${indexes.length} خانه روشن` : "هیچ خانه‌ای روشن نیست";
 
   const rawInput = wheelSearch.value.trim();
+  const repeatedInputLetters = Array.from(rawInput).filter((ch) => ALPHABET.includes(ch));
+  const repeatedFilteredSequence = repeatedInputLetters.filter((ch) =>
+    selectedWheelLetters.has(ALPHABET.indexOf(ch))
+  );
   const inputLetters = rawInput ? getWheelLetterSequence(rawInput) : [];
   const filteredSequence = inputLetters.filter((ch) => selectedWheelLetters.has(ALPHABET.indexOf(ch)));
+
+  wheelRepeatedSequence.textContent = repeatedFilteredSequence.length
+    ? `حروفِ فیلترشده با تکرار: ${repeatedFilteredSequence.join(" ")}`
+    : "حروفِ فیلترشده با تکرار: —";
 
   if (!filteredSequence.length) {
     wheelSelected.textContent = "هنوز ورودیِ فیلترشده‌ای باقی نمانده است";
