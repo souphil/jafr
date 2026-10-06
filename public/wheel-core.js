@@ -4,6 +4,15 @@ export const ALPHABET = [
   "ش", "ت", "ث", "خ", "ذ", "ض", "ظ", "غ",
 ];
 
+export const ABITH_ALPHABET = [
+  "ا", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر", "ز", "س", "ش", "ص",
+  "ض", "ط", "ظ", "ع", "غ", "ف", "ق", "ک", "ل", "م", "ن", "ه", "و", "ی",
+];
+
+export function getWheelOrder(mode) {
+  return mode === "abith" ? ABITH_ALPHABET : ALPHABET;
+}
+
 export function normalizeWheelInput(rawText) {
   const unique = [];
   const seen = new Set();

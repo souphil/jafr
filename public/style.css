@@ -165,13 +165,14 @@ body {
 .wheel-cell { cursor: pointer; stroke: var(--paper); stroke-width: 2; transition: opacity 0.16s ease, filter 0.16s ease; }
 .wheel-filter-summary { display: none; }
 .wheel-cell.fire { fill: #b95d3b; }
-.wheel-cell.air { fill: #6f9b9b; }
+.wheel-cell.air { fill: #c9ced4; }
 .wheel-cell.earth { fill: #9a7a4d; }
 .wheel-cell.water { fill: #47799a; }
 .wheel-cell:hover, .wheel-cell:focus { filter: brightness(1.16); outline: none; }
 .wheel-cell.selected { stroke: #fff7dc; stroke-width: 5; filter: drop-shadow(0 0 4px rgba(36,28,21,0.7)); }
 .wheel-cell.filtered-out { opacity: 0.2; }
 .wheel-letter { pointer-events: none; fill: #fff8e7; font-family: "Tahoma", "Vazirmatn", sans-serif; font-size: 20px; font-weight: 700; text-anchor: middle; }
+.wheel-letter.air { fill: #343b43; }
 .wheel-center { fill: var(--seal); font-family: "Tahoma", "Vazirmatn", sans-serif; font-size: 20px; font-weight: 700; text-anchor: middle; }
 .direction-label { position: absolute; z-index: 2; color: var(--seal); font-size: 0.72rem; font-weight: 700; }
 .direction-north { top: 0.2rem; left: 50%; transform: translateX(-50%); }
@@ -186,7 +187,7 @@ body {
 .filter-label { color: var(--ink-soft); font-size: 0.82rem; font-weight: 600; }
 .wheel-actions { display: flex; justify-content: center; margin-top: 0.35rem; }
 .element-dot { display: inline-block; width: 0.7rem; height: 0.7rem; border-radius: 50%; margin-left: 0.3rem; vertical-align: -0.05rem; }
-.element-dot.fire { background: #b95d3b; }.element-dot.air { background: #6f9b9b; }.element-dot.earth { background: #9a7a4d; }.element-dot.water { background: #47799a; }
+.element-dot.fire { background: #b95d3b; }.element-dot.air { background: #c9ced4; border: 1px solid #8e969f; }.element-dot.earth { background: #9a7a4d; }.element-dot.water { background: #47799a; }
 .wheel-output { min-height: 320px; }
 .output-kicker { color: var(--gold); font-size: 0.82rem; font-weight: 700; }
 .wheel-selected { margin-top: 0.45rem; color: var(--seal); font-family: "Tahoma", "Vazirmatn", sans-serif; font-size: 1.2rem; line-height: 1.9; }

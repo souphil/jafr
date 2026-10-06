@@ -1,9 +1,6 @@
+import { ALPHABET, getWheelOrder } from "./wheel-core.js";
+
 // ---------- Constants from index.js ----------
-const ALPHABET = [
-  "ا", "ب", "ج", "د", "ه", "و", "ز", "ح", "ط", "ی",
-  "ک", "ل", "م", "ن", "س", "ع", "ف", "ص", "ق", "ر",
-  "ش", "ت", "ث", "خ", "ذ", "ض", "ظ", "غ",
-];
 
 const ABJAD_VALUES = {
   "ا": 1, "ب": 2, "ج": 3, "د": 4, "ه": 5, "و": 6, "ز": 7, "ح": 8, "ط": 9, "ی": 10,
@@ -571,6 +568,7 @@ function getWheelMeta(index) {
 
 function createWheel() {
   const ns = "http://www.w3.org/2000/svg";
+  const wheelOrder = getWheelOrder(currentWheelMode);
   wheel.innerHTML = "";
   const background = document.createElementNS(ns, "circle");
   background.setAttribute("cx", "220");
@@ -581,7 +579,9 @@ function createWheel() {
 
   for (let ring = 0; ring < 4; ring++) {
     for (let sector = 0; sector < 7; sector++) {
-      const index = ring * 7 + sector;
+      const position = ring * 7 + sector;
+      const letter = wheelOrder[position];
+      const index = ALPHABET.indexOf(letter);
       const startAngle = sector * (360 / 7) + 0.8;
       const endAngle = (sector + 1) * (360 / 7) - 0.8;
       const meta = getWheelMeta(index);
@@ -612,7 +612,7 @@ function createWheel() {
       const labelPoint = polarPoint(220, 220, 55 + ring * 42, (startAngle + endAngle) / 2);
       label.setAttribute("x", labelPoint[0]);
       label.setAttribute("y", labelPoint[1] + 7);
-      label.setAttribute("class", "wheel-letter");
+      label.setAttribute("class", `wheel-letter ${meta.className}`);
       label.textContent = meta.letter;
       wheel.appendChild(label);
     }
@@ -622,7 +622,7 @@ function createWheel() {
   center.setAttribute("x", "220");
   center.setAttribute("y", "216");
   center.setAttribute("class", "wheel-center");
-  center.textContent = "ابجد";
+  center.textContent = currentWheelMode === "abith" ? "ابتث" : "ابجد";
   wheel.appendChild(center);
   createNumberSelection();
 }
