@@ -182,6 +182,9 @@ function scheduleBookSelection() {
 }
 
 function openHouse(cell) {
+  bookEstekhrajInput.value = cell.dataset.binat.split("").join(" ");
+  calculateBookEstekhraj(bookEstekhrajInput.value, { openWords: true });
+
   if (expandedHouse === cell && !houseDetail.hidden) {
     houseDetail.hidden = true;
     cell.setAttribute("aria-expanded", "false");
@@ -427,9 +430,12 @@ bookEstekhrajInput.addEventListener("input", () => {
   bookWordsButton.textContent = "بازکردن کلمات مقارن";
 });
 
-bookCalculateButton.addEventListener("click", async () => {
+bookCalculateButton.addEventListener("click", () => {
+  calculateBookEstekhraj(bookEstekhrajInput.value.trim());
+});
+
+async function calculateBookEstekhraj(text, { openWords = false } = {}) {
   const requestId = ++bookEstekhrajRequest;
-  const text = bookEstekhrajInput.value.trim();
   bookEstekhrajResult.replaceChildren();
   bookEstekhrajWords.replaceChildren();
   bookEstekhrajWords.hidden = true;
@@ -465,6 +471,12 @@ bookCalculateButton.addEventListener("click", async () => {
     `;
     bookEstekhrajWords.innerHTML = matchingWordsHtml(groups);
     bookWordsButton.disabled = false;
+    if (openWords) {
+      bookEstekhrajWords.hidden = false;
+      bookWordsButton.setAttribute("aria-expanded", "true");
+      bookWordsButton.textContent = "بستن کلمات مقارن";
+      document.querySelector(".book-estekhraj-two").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   } catch {
     if (requestId === bookEstekhrajRequest) {
       bookEstekhrajResult.innerHTML = `<p class="error-msg">ارتباط با سرویس محاسبه برقرار نشد.</p>`;
@@ -472,7 +484,7 @@ bookCalculateButton.addEventListener("click", async () => {
   } finally {
     if (requestId === bookEstekhrajRequest) bookCalculateButton.disabled = false;
   }
-});
+}
 
 bookWordsButton.addEventListener("click", () => {
   const isOpening = bookEstekhrajWords.hidden;
