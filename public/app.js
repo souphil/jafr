@@ -106,6 +106,7 @@ async function loadPage() {
       const abjadSmall = reduceAbjad(abjadBig);
       const binat = computeBinat(cell);
       const uniqueBinat = uniqueLetters(binat).join("");
+      const binatAbjad = computeAbjad(binat);
       const uniqueBinatAbjad = computeAbjad(uniqueBinat);
       
       // Create tooltip content with coordinates and values
@@ -125,6 +126,9 @@ async function loadPage() {
       td.setAttribute("data-abjad-big", abjadBig);
       td.setAttribute("data-abjad-small", abjadSmall);
       td.setAttribute("data-binat", binat);
+      td.setAttribute("data-unique-binat", uniqueBinat);
+      td.setAttribute("data-binat-abjad", binatAbjad);
+      td.setAttribute("data-unique-binat-abjad", uniqueBinatAbjad);
       tr.appendChild(td);
     });
     table.appendChild(tr);
@@ -182,9 +186,6 @@ function scheduleBookSelection() {
 }
 
 function openHouse(cell) {
-  bookEstekhrajInput.value = cell.dataset.binat.split("").join(" ");
-  calculateBookEstekhraj(bookEstekhrajInput.value, { openWords: true });
-
   if (expandedHouse === cell && !houseDetail.hidden) {
     houseDetail.hidden = true;
     cell.setAttribute("aria-expanded", "false");
@@ -199,8 +200,39 @@ function openHouse(cell) {
   heading.textContent = `بیت ${cell.dataset.khane} · ${cell.querySelector(".house-letters").textContent}`;
   const address = document.createElement("p");
   address.textContent = `شهر ${cell.dataset.safhe} · کوی ${cell.dataset.satr}`;
+  const sourceLabel = document.createElement("label");
+  sourceLabel.className = "house-estekhraj-label";
+  sourceLabel.textContent = "مبنای مستحصله";
+  const sourceSelect = document.createElement("select");
+  sourceSelect.id = "house-estekhraj-source";
+  sourceSelect.className = "house-estekhraj-source";
+  sourceLabel.htmlFor = sourceSelect.id;
+  [
+    ["word", "خودِ حروف بیت"],
+    ["binat", "بینات بیت"],
+    ["unique-binat", "بیناتِ بدون تکرار"],
+  ].forEach(([value, label]) => sourceSelect.add(new Option(label, value)));
+  sourceLabel.appendChild(sourceSelect);
+
+  const numberOptions = document.createElement("div");
+  numberOptions.className = "house-abjad-options";
+  numberOptions.setAttribute("aria-label", "انتخاب عدد برای یافتن کلمات مقارن");
+  [
+    ["ابجد کبیرِ بیت", cell.dataset.abjadBig],
+    ["ابجد صغیرِ بیت", cell.dataset.abjadSmall],
+    ["ابجدِ بینات", cell.dataset.binatAbjad],
+    ["ابجدِ بیناتِ بدون تکرار", cell.dataset.uniqueBinatAbjad],
+  ].forEach(([label, number]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "house-number-option";
+    button.textContent = `${label}: ${number}`;
+    button.addEventListener("click", () => showWordsForNumber(number, label));
+    numberOptions.appendChild(button);
+  });
+
   const values = document.createElement("dl");
-  [["ابجد کبیر", cell.dataset.abjadBig], ["ابجد صغیر", cell.dataset.abjadSmall], ["بینات", cell.dataset.binat]]
+  [["حروف بیت", cell.querySelector(".house-letters").textContent], ["بینات", cell.dataset.binat], ["بیناتِ بدون تکرار", cell.dataset.uniqueBinat]]
     .forEach(([label, value]) => {
       const term = document.createElement("dt");
       term.textContent = label;
@@ -217,8 +249,19 @@ function openHouse(cell) {
     cell.setAttribute("aria-expanded", "false");
     expandedHouse = null;
   });
-  houseDetail.replaceChildren(heading, address, values, close);
+  sourceSelect.addEventListener("change", () => {
+    const sourceText = {
+      word: cell.querySelector(".house-letters").textContent,
+      binat: cell.dataset.binat,
+      "unique-binat": cell.dataset.uniqueBinat,
+    }[sourceSelect.value];
+    bookEstekhrajInput.value = sourceText.split("").join(" ");
+    calculateBookEstekhraj(bookEstekhrajInput.value, { openWords: true });
+  });
+  houseDetail.replaceChildren(heading, address, sourceLabel, numberOptions, values, close);
   houseDetail.hidden = false;
+  bookEstekhrajInput.value = cell.querySelector(".house-letters").textContent.split("").join(" ");
+  calculateBookEstekhraj(bookEstekhrajInput.value, { openWords: true });
 }
 
 bookViewport.addEventListener("scroll", scheduleBookSelection, { passive: true });
@@ -483,6 +526,36 @@ async function calculateBookEstekhraj(text, { openWords = false } = {}) {
     }
   } finally {
     if (requestId === bookEstekhrajRequest) bookCalculateButton.disabled = false;
+  }
+}
+
+async function showWordsForNumber(number, label) {
+  const requestId = ++bookEstekhrajRequest;
+  bookCalculateButton.disabled = false;
+  bookEstekhrajResult.innerHTML = `<div class="total-line">${label}: ${number}</div>`;
+  bookEstekhrajWords.replaceChildren();
+  bookEstekhrajWords.hidden = true;
+  bookWordsButton.disabled = true;
+  bookWordsButton.setAttribute("aria-expanded", "false");
+  bookWordsButton.textContent = "بازکردن کلمات مقارن";
+  try {
+    const response = await fetch(`/api/word-for-number?number=${encodeURIComponent(number)}`);
+    const data = await response.json();
+    if (requestId !== bookEstekhrajRequest) return;
+    if (!response.ok || data.error) {
+      bookEstekhrajResult.innerHTML += `<p class="error-msg">${data.error || "جست‌وجوی عدد انجام نشد."}</p>`;
+      return;
+    }
+    bookEstekhrajWords.innerHTML = matchingWordsHtml(data.groups || { persian: [], arabic: [], names: [] });
+    bookEstekhrajWords.hidden = false;
+    bookWordsButton.disabled = false;
+    bookWordsButton.setAttribute("aria-expanded", "true");
+    bookWordsButton.textContent = "بستن کلمات مقارن";
+    document.querySelector(".book-estekhraj-two").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch {
+    if (requestId === bookEstekhrajRequest) {
+      bookEstekhrajResult.innerHTML += `<p class="error-msg">ارتباط با سرویس جست‌وجوی کلمات برقرار نشد.</p>`;
+    }
   }
 }
 

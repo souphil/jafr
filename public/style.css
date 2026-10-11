@@ -437,6 +437,11 @@ textarea {
 .house-detail dl { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; grid-column: 1 / -1; margin: 0; }
 .house-detail dt { color: var(--ink-soft); font-size: 0.78rem; }
 .house-detail dd { margin: 0; color: var(--ink); font-weight: 600; }
+.house-estekhraj-label { grid-column: 1 / -1; display: flex !important; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0 !important; }
+.house-estekhraj-source { max-width: 100%; padding: 0.4rem 0.6rem; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); font: inherit; }
+.house-abjad-options { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.house-number-option { padding: 0.35rem 0.6rem; border: 1px solid var(--rule); border-radius: 4px; background: transparent; color: var(--seal); font: inherit; cursor: pointer; }
+.house-number-option:hover, .house-number-option:focus-visible { background: rgba(156,122,50,0.16); }
 .detail-close { grid-column: 2; grid-row: 1; padding: 0.35rem 0.7rem; border: 1px solid var(--rule); background: transparent; color: var(--seal); font: inherit; cursor: pointer; }
 
 .book-estekhraj-two {
